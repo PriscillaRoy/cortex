@@ -1,0 +1,643 @@
+{
+  "timestamp": "20260614T011312",
+  "seed": 42,
+  "scores": {
+    "retrieval_hit_rate": 1.0,
+    "retrieval_hits": 23,
+    "retrieval_scored": 23,
+    "generation_score": 0.9,
+    "generation_pass": 27,
+    "generation_total": 30,
+    "answerable_score": 0.9130434782608695,
+    "answerable_pass": 21,
+    "answerable_total": 23,
+    "unanswerable_score": 0.8571428571428571,
+    "unanswerable_pass": 6,
+    "unanswerable_total": 7
+  },
+  "results": [
+    {
+      "query": "What is point-in-time correctness in a feature store?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "debug_matchevent_search.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [
+        "feature_store_design.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "Point-in-Time Correctness refers to ensuring that when generating training data, you must join feature values \"as they were\" at the time of the label event \u2014 not the current value. This is crucial to avoid training/serving skew and label leakage, where the model sees information from the future during training that it would never have at inference time.",
+      "expected_keywords": [
+        "point-in-time",
+        "training",
+        "feature"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 70,
+      "prompt_tokens": 728
+    },
+    {
+      "query": "What's the tradeoff between streaming and batch feature computation?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [
+        "feature_store_design.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "According to the context, the tradeoff between streaming and batch feature computation is:\n\nStreaming feature computation (e.g., using Kafka + Flink) gives near-real-time freshness but costs more in infrastructure and complexity.\n\nOn the other hand, batch computation (e.g., daily Airflow jobs) is cheaper but features can be stale by up to 24h.",
+      "expected_keywords": [
+        "streaming",
+        "batch"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 73,
+      "prompt_tokens": 717
+    },
+    {
+      "query": "What is the difference between an offline store and an online store?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [
+        "feature_store_design.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "An offline store holds historical feature values, usually in a data warehouse or columnar format (Parquet, BigQuery), used to generate training datasets. An online store holds the latest feature values, optimized for low-latency point lookups (Redis, DynamoDB, Cassandra), used at inference time.",
+      "expected_keywords": [
+        "offline",
+        "online"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 61,
+      "prompt_tokens": 733
+    },
+    {
+      "query": "What causes training/serving skew?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "debug_matchevent_search.md",
+        "rl_basics.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [
+        "feature_store_design.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "Training/serving skew occurs when feature values are not joined \"as they were\" at the time of the label event, but instead with the current value. This causes the model to see information from the future during training that it would never have at inference time, leading to **training/serving skew** and label leakage.",
+      "expected_keywords": [
+        "skew",
+        "training",
+        "serving"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 65,
+      "prompt_tokens": 800
+    },
+    {
+      "query": "What MongoDB index was missing in the debugging notes?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "debug_matchevent_search.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "According to the context, a MongoDB index on the `guid` field was missing. Specifically, it states:\n\n\"The Root Cause Hypothesis: ... The `persistentEventMatchAttempt` collection has no index on the `guid` field.\"",
+      "expected_keywords": [
+        "guid"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 49,
+      "prompt_tokens": 753
+    },
+    {
+      "query": "Summarize the lesson from the MatchEvent debugging log.",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "debug_matchevent_search.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "The lesson from the MatchEvent debugging log is:\n\nWhen searching for MatchEvent entities by GUID, ensure that the MongoDB query is correctly executed. In this case, the backend search handler was executing a query using `db.persistentEventMatchAttempt.find({ guid: \"<the-guid>\" })`, but it seemed to be taking too long (8-12 seconds) due to a potential timeout issue.\n\nAdditionally, it's essential to verify whether the series exists at all (`count(metric_name)`) before assuming the value is 0. In this case, the `title_retry` metric was absent from the dashboard, which indicated that the series did not exist as expected.\n\nThe debugging log also highlights the importance of filtering out empty strings when using regex filters in PromQL variables to avoid unintended results.",
+      "expected_keywords": [
+        "index",
+        "guid"
+      ],
+      "missing_keywords": [
+        "index"
+      ],
+      "generation_pass": false,
+      "completion_tokens": 158,
+      "prompt_tokens": 840
+    },
+    {
+      "query": "Why did the search return empty results instead of an error?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "debug_matchevent_search.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "The search returned empty results because the MongoDB query triggered a full collection scan due to the lack of an index on the `guid` field. This exceeded the application timeout under load, and the backend handler swallowed the timeout error, returning an empty list instead of propagating the error.",
+      "expected_keywords": [
+        "index",
+        "query"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 57,
+      "prompt_tokens": 813
+    },
+    {
+      "query": "What was the root cause of the MatchEvent search bug?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "debug_matchevent_search.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "The root cause of the MatchEvent search bug was that the `persistentEventMatchAttempt` collection did not have an index on the `guid` field. This caused a full collection scan when searching for documents by GUID, which exceeded the application's 5-second timeout under load, resulting in the search returning empty results.",
+      "expected_keywords": [
+        "guid",
+        "index"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 65,
+      "prompt_tokens": 813
+    },
+    {
+      "query": "How do you handle the trailing pipe bug in Grafana variable filters?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [
+        "promql_patterns.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "You can fix the trailing pipe bug in Grafana variable filters by filtering out empty strings before joining the variable values, or use `type=~\"^(event|person)$\"` with explicit anchors.",
+      "expected_keywords": [
+        "pipe",
+        "filter"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 40,
+      "prompt_tokens": 768
+    },
+    {
+      "query": "Why might a Prometheus counter be missing from a dashboard entirely?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "promql_patterns.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "A Prometheus counter might be missing from a dashboard entirely because it has never been incremented, according to Prometheus counters that have never been incremented simply don't exist as a series \u2014 they don't show up at all. Always check whether the series exists at all (`count(metric_name)`) before assuming the value is 0.",
+      "expected_keywords": [
+        "counter",
+        "metric"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 65,
+      "prompt_tokens": 840
+    },
+    {
+      "query": "What PromQL pattern avoids gaps when summing across series?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "promql_patterns.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "sum(\n  rate(matcher_count{type=\"event\"}[5m])\n  or\n  vector(0)\n)",
+      "expected_keywords": [
+        "or",
+        "vector"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 26,
+      "prompt_tokens": 840
+    },
+    {
+      "query": "What's the difference between a missing metric and a zero-value metric?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "promql_patterns.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "A missing metric and a zero-value metric are different failure modes with different causes. To determine whether a series exists (and thus may have a zero value), it's essential to check whether the series actually exists at all, rather than assuming its value is 0 solely based on the absence of data in the time window being viewed.",
+      "expected_keywords": [
+        "missing",
+        "zero"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 67,
+      "prompt_tokens": 775
+    },
+    {
+      "query": "What is the difference between Q-learning and SARSA?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "utma_kiddie_tax.md"
+      ],
+      "expected_sources": [
+        "rl_basics.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "Q-learning is off-policy, updating Q(s,a) using the maximum possible Q-value of the next state, regardless of what action the agent actually takes next. This allows it to learn the optimal policy even while exploring with a different policy.\n\nSARSA is on-policy, updating Q(s,a) using the Q-value of the action the agent actually takes next (following its current policy, including exploration). This makes SARSA more conservative and accounts for the exploration strategy itself.",
+      "expected_keywords": [
+        "Q-learning",
+        "SARSA",
+        "policy"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 96,
+      "prompt_tokens": 872
+    },
+    {
+      "query": "What is Direct Preference Optimization?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [
+        "rl_basics.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "Direct Preference Optimization (DPO) skips training a separate reward model entirely. Instead, it directly optimizes the policy to increase the relative likelihood of preferred responses over rejected ones, using a loss derived from the Bradley-Terry preference model that would otherwise train a reward model.",
+      "expected_keywords": [
+        "DPO",
+        "reward model"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 55,
+      "prompt_tokens": 793
+    },
+    {
+      "query": "What is Constitutional AI?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "feature_store_design.md",
+        "utma_kiddie_tax.md"
+      ],
+      "expected_sources": [
+        "rl_basics.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "Constitutional AI refers to Anthropic's approach in which a model critiques and revises its own outputs against a set of written principles (\"constitution\") to generate training data for both supervised fine-tuning and preference-modeling, reducing reliance on large volumes of human labels.",
+      "expected_keywords": [
+        "Constitutional",
+        "principles"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 55,
+      "prompt_tokens": 830
+    },
+    {
+      "query": "Why does RLHF use PPO instead of Q-learning?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md"
+      ],
+      "expected_sources": [
+        "rl_basics.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "According to the context, RLHF uses PPO (Proximal Policy Optimization) instead of Q-learning because the action space is huge and continuous-ish. This makes it more suitable for the specific task at hand.",
+      "expected_keywords": [
+        "PPO",
+        "action space"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 44,
+      "prompt_tokens": 801
+    },
+    {
+      "query": "In a grid world with a cliff, why would Q-learning and SARSA learn different paths?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "utma_kiddie_tax.md"
+      ],
+      "expected_sources": [
+        "rl_basics.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "In a grid world with a \"cliff\", Q-learning will learn the shortest path along the cliff edge because it assumes optimal future actions. On the other hand, SARSA learns a safer path further from the cliff by accounting for the chance of a random exploratory step causing a fall.",
+      "expected_keywords": [
+        "cliff",
+        "Q-learning",
+        "SARSA"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 59,
+      "prompt_tokens": 774
+    },
+    {
+      "query": "What's the difference between a 529 plan and a UTMA account?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "utma_kiddie_tax.md"
+      ],
+      "expected_sources": [
+        "utma_kiddie_tax.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "According to the context, a 529 plan is taxed-free for qualified education expenses, but it counts as a parental asset for FAFSA purposes, which means it has less impact on aid eligibility compared to a UTMA account. On the other hand, a UTMA account allows for more flexibility (any use for the minor's benefit), but it is counted more heavily against financial aid eligibility and is subject to Kiddie Tax on growth.",
+      "expected_keywords": [
+        "529",
+        "UTMA"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 89,
+      "prompt_tokens": 810
+    },
+    {
+      "query": "What is the Kiddie Tax?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "utma_kiddie_tax.md"
+      ],
+      "expected_sources": [
+        "utma_kiddie_tax.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "The Kiddie Tax refers to the tax rule that applies to unearned income in a UTMA account. It taxes any unearned income above a certain threshold at the parent's marginal tax rate, not the child's tax rate. This is intended to prevent parents from shifting investment income to children to get a lower tax rate.",
+      "expected_keywords": [
+        "Kiddie Tax",
+        "unearned income"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 66,
+      "prompt_tokens": 823
+    },
+    {
+      "query": "How does a UTMA account affect financial aid eligibility?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "utma_kiddie_tax.md"
+      ],
+      "expected_sources": [
+        "utma_kiddie_tax.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "A UTMA account counts as the student's own asset, which means it has a more significant impact on financial aid eligibility. This is compared to a 529 plan, which, if used for qualified education expenses, has less of an impact on aid eligibility.",
+      "expected_keywords": [
+        "UTMA",
+        "FAFSA"
+      ],
+      "missing_keywords": [
+        "FAFSA"
+      ],
+      "generation_pass": false,
+      "completion_tokens": 53,
+      "prompt_tokens": 807
+    },
+    {
+      "query": "Compare how UTMA accounts and feature stores both handle a kind of 'point in time' concept.",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "feature_store_design.md",
+        "utma_kiddie_tax.md"
+      ],
+      "expected_sources": [
+        "utma_kiddie_tax.md",
+        "feature_store_design.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "Both UTMA accounts and feature stores deal with a \"point-in-time\" concept, but in different contexts. \n\nUTMA accounts involve point-in-time concerns related to taxes, where unearned income is taxed at the parent's marginal tax rate if above a certain threshold, rather than the child's rate.\n\nFeature stores have an even more complex concept of point-in-time correctness, which refers to joining feature values \"as they were\" at the time of the label when generating training datasets. This is particularly challenging because the feature store needs to provide features for both training and inference, and the values might have changed since then.\n\nThere isn't a direct comparison between how UTMA accounts handle point-in-time concepts versus feature stores.",
+      "expected_keywords": [
+        "UTMA",
+        "feature"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 145,
+      "prompt_tokens": 674
+    },
+    {
+      "query": "What debugging lesson applies to both the MatchEvent bug and the missing Prometheus counter?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "Always check whether the series exists at all (`count(metric_name)`) before assuming the value is 0. This is different from a metric that exists but is currently 0, as \"missing from the dashboard\" and \"value is zero\" are two separate failure modes with distinct causes.",
+      "expected_keywords": [
+        "exists",
+        "metric"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 59,
+      "prompt_tokens": 844
+    },
+    {
+      "query": "What's the best pizza topping?",
+      "unanswerable": true,
+      "retrieved_sources": [
+        "rl_basics.md"
+      ],
+      "expected_sources": [],
+      "retrieval_hit": null,
+      "answer": "I can't provide an answer to that question based on the given context, as it seems unrelated to the topics discussed in rl_basics.md. The context only covers reinforcement learning basics and fine-tuning large language models with human feedback. If you'd like to ask a question related to those topics, I'll be happy to help!",
+      "expected_keywords": [
+        "context"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 68,
+      "prompt_tokens": 796
+    },
+    {
+      "query": "How do you create an index on a MongoDB collection?",
+      "unanswerable": true,
+      "retrieved_sources": [
+        "debug_matchevent_search.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [],
+      "retrieval_hit": null,
+      "answer": "To create an index on a MongoDB collection, you would use the `createIndex` method.\n\nFor example, to add an index on the `guid` field in the `persistentEventMatchAttempt` collection, you would run:\n\n```\ndb.persistentEventMatchAttempt.createIndex({ guid: 1 })\n```",
+      "expected_keywords": [
+        "context"
+      ],
+      "missing_keywords": [
+        "context"
+      ],
+      "generation_pass": false,
+      "completion_tokens": 63,
+      "prompt_tokens": 815
+    },
+    {
+      "query": "What is the capital of France?",
+      "unanswerable": true,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "rl_basics.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [],
+      "retrieval_hit": null,
+      "answer": "I can only answer questions based on the provided context. The question \"What is the capital of France?\" does not appear in any of the given sources (rl_basics.md, chunk 1; rl_basics.md, chunk 0; feature_store_design.md, chunk 0; promql_patterns.md, chunk 2). Therefore, I cannot provide an answer to this question.",
+      "expected_keywords": [
+        "context"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 79,
+      "prompt_tokens": 816
+    },
+    {
+      "query": "What index should be added to persistentEventMatchAttempt?",
+      "unanswerable": false,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [
+        "debug_matchevent_search.md"
+      ],
+      "retrieval_hit": true,
+      "answer": "According to the context, an index should be added on the `guid` field in the `persistentEventMatchAttempt` collection. The specific command to add this index is:\n\n```javascript\ndb.persistentEventMatchAttempt.createIndex({ guid: 1 })\n```\n\nThis will ensure that queries on the `guid` field do not trigger a full collection scan, which was causing timeouts and returning an empty list instead of propagating the error.",
+      "expected_keywords": [
+        "guid"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 89,
+      "prompt_tokens": 812
+    },
+    {
+      "query": "What does AUTOINDEX mean in Milvus?",
+      "unanswerable": true,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "rl_basics.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [],
+      "retrieval_hit": null,
+      "answer": "I don't have enough context to answer this question. The provided text doesn't mention \"AUTOINDEX\" or any relation to Milvus, so I can only say that I'm not aware of what \"AUTOINDEX\" means in the context of Milvus without more information.",
+      "expected_keywords": [
+        "context"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 58,
+      "prompt_tokens": 751
+    },
+    {
+      "query": "What model is used for embeddings in this project?",
+      "unanswerable": true,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [],
+      "retrieval_hit": null,
+      "answer": "The question cannot be answered based on the provided context. The context mentions various models and techniques related to reinforcement learning, preference modeling, and feature store design, but it does not mention a specific model used for embeddings.",
+      "expected_keywords": [
+        "context"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 44,
+      "prompt_tokens": 661
+    },
+    {
+      "query": "What is the chunk size used for splitting notes?",
+      "unanswerable": true,
+      "retrieved_sources": [
+        "promql_patterns.md",
+        "feature_store_design.md",
+        "debug_matchevent_search.md"
+      ],
+      "expected_sources": [],
+      "retrieval_hit": null,
+      "answer": "According to the context, it doesn't mention the chunk size used for splitting notes. The context only provides information about feature store design, PromQL patterns, and debugging match event search, but does not specify anything about chunk sizes for note organization.",
+      "expected_keywords": [
+        "context"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 50,
+      "prompt_tokens": 762
+    },
+    {
+      "query": "What does top_k control in retrieval?",
+      "unanswerable": true,
+      "retrieved_sources": [
+        "rl_basics.md",
+        "feature_store_design.md"
+      ],
+      "expected_sources": [],
+      "retrieval_hit": null,
+      "answer": "I don't have enough context to answer this question. The provided text doesn't mention \"top_k\" or its role in retrieval. Could you please provide more context or clarify what \"top_k\" refers to in the context of retrieval? I'll do my best to help.",
+      "expected_keywords": [
+        "context"
+      ],
+      "missing_keywords": [],
+      "generation_pass": true,
+      "completion_tokens": 57,
+      "prompt_tokens": 864
+    }
+  ]
+}

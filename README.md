@@ -117,3 +117,4 @@ semantic-quality eval suite that requires the real embedding model.
       this week"), full reasoning-trace logging
 - [ ] **Phase 5** (stretch) — LoRA fine-tuning for structured extraction,
       DPO preference tuning
+

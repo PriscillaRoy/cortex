@@ -26,3 +26,11 @@ COLLECTION_NAME = "cortex_chunks"
 # --- LLM (Ollama) ---
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2:latest")
+
+# Fixed seed for app/baseline.py - makes save/check runs deterministic
+# (same prompt -> same output), so "did the answer change" reflects
+# changes we made (prompt/model/chunks), not LLM sampling randomness.
+# Normal /ask and /ask/compare calls do NOT use a seed - those should
+# behave like a real LLM (naturally varied), only baseline comparisons
+# need determinism.
+BASELINE_SEED = 42

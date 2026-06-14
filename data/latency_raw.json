@@ -1,0 +1,1057 @@
+{
+  "prompt_version": "v2_concise_2sentence",
+  "per_query": [
+    {
+      "request_id": "3c39eae9",
+      "query": "What is point-in-time correctness in a feature store?",
+      "wall_ms": 12764.99,
+      "prompt_tokens": 761,
+      "completion_tokens": 26,
+      "generate_ms": 4528.1,
+      "retrieve_ms": 8235.9
+    },
+    {
+      "request_id": "c30414bd",
+      "query": "What's the tradeoff between streaming and batch feature computation?",
+      "wall_ms": 2742.68,
+      "prompt_tokens": 750,
+      "completion_tokens": 34,
+      "generate_ms": 1723.1,
+      "retrieve_ms": 1019.2
+    },
+    {
+      "request_id": "33f4ed95",
+      "query": "What is the difference between an offline store and an online store?",
+      "wall_ms": 1750.93,
+      "prompt_tokens": 766,
+      "completion_tokens": 42,
+      "generate_ms": 1694.8,
+      "retrieve_ms": 56.0
+    },
+    {
+      "request_id": "2613f47e",
+      "query": "What causes training/serving skew?",
+      "wall_ms": 1885.0,
+      "prompt_tokens": 833,
+      "completion_tokens": 27,
+      "generate_ms": 1567.1,
+      "retrieve_ms": 317.7
+    },
+    {
+      "request_id": "9e238c6d",
+      "query": "What MongoDB index was missing in the debugging notes?",
+      "wall_ms": 1688.13,
+      "prompt_tokens": 786,
+      "completion_tokens": 36,
+      "generate_ms": 1636.6,
+      "retrieve_ms": 51.2
+    },
+    {
+      "request_id": "a5c52e3a",
+      "query": "Summarize the lesson from the MatchEvent debugging log.",
+      "wall_ms": 2054.26,
+      "prompt_tokens": 873,
+      "completion_tokens": 64,
+      "generate_ms": 1964.9,
+      "retrieve_ms": 89.2
+    },
+    {
+      "request_id": "724feaf2",
+      "query": "Why did the search return empty results instead of an error?",
+      "wall_ms": 1951.13,
+      "prompt_tokens": 846,
+      "completion_tokens": 29,
+      "generate_ms": 1653.3,
+      "retrieve_ms": 297.7
+    },
+    {
+      "request_id": "db794469",
+      "query": "What was the root cause of the MatchEvent search bug?",
+      "wall_ms": 1976.95,
+      "prompt_tokens": 846,
+      "completion_tokens": 51,
+      "generate_ms": 1937.9,
+      "retrieve_ms": 38.7
+    },
+    {
+      "request_id": "bce6e207",
+      "query": "How do you handle the trailing pipe bug in Grafana variable filters?",
+      "wall_ms": 1577.87,
+      "prompt_tokens": 801,
+      "completion_tokens": 29,
+      "generate_ms": 1524.8,
+      "retrieve_ms": 52.8
+    },
+    {
+      "request_id": "a0207bf2",
+      "query": "Why might a Prometheus counter be missing from a dashboard entirely?",
+      "wall_ms": 1659.39,
+      "prompt_tokens": 873,
+      "completion_tokens": 28,
+      "generate_ms": 1611.4,
+      "retrieve_ms": 47.7
+    },
+    {
+      "request_id": "7e171360",
+      "query": "What PromQL pattern avoids gaps when summing across series?",
+      "wall_ms": 1368.91,
+      "prompt_tokens": 873,
+      "completion_tokens": 10,
+      "generate_ms": 1318.9,
+      "retrieve_ms": 49.9
+    },
+    {
+      "request_id": "4c0718b1",
+      "query": "What's the difference between a missing metric and a zero-value metric?",
+      "wall_ms": 1823.34,
+      "prompt_tokens": 808,
+      "completion_tokens": 41,
+      "generate_ms": 1732.0,
+      "retrieve_ms": 91.2
+    },
+    {
+      "request_id": "32a03e8c",
+      "query": "What is the difference between Q-learning and SARSA?",
+      "wall_ms": 1941.87,
+      "prompt_tokens": 905,
+      "completion_tokens": 42,
+      "generate_ms": 1893.3,
+      "retrieve_ms": 48.3
+    },
+    {
+      "request_id": "288a9441",
+      "query": "What is Direct Preference Optimization?",
+      "wall_ms": 2367.6,
+      "prompt_tokens": 826,
+      "completion_tokens": 53,
+      "generate_ms": 1968.8,
+      "retrieve_ms": 398.7
+    },
+    {
+      "request_id": "ebb955d6",
+      "query": "What is Constitutional AI?",
+      "wall_ms": 2049.74,
+      "prompt_tokens": 863,
+      "completion_tokens": 50,
+      "generate_ms": 1960.1,
+      "retrieve_ms": 89.5
+    },
+    {
+      "request_id": "6a6c9c4c",
+      "query": "Why does RLHF use PPO instead of Q-learning?",
+      "wall_ms": 1763.0,
+      "prompt_tokens": 834,
+      "completion_tokens": 38,
+      "generate_ms": 1719.0,
+      "retrieve_ms": 43.7
+    },
+    {
+      "request_id": "58e2e755",
+      "query": "In a grid world with a cliff, why would Q-learning and SARSA learn different paths?",
+      "wall_ms": 1137.25,
+      "prompt_tokens": 807,
+      "completion_tokens": 45,
+      "generate_ms": 1043.0,
+      "retrieve_ms": 94.0
+    },
+    {
+      "request_id": "5c9b5f25",
+      "query": "What's the difference between a 529 plan and a UTMA account?",
+      "wall_ms": 2379.07,
+      "prompt_tokens": 843,
+      "completion_tokens": 75,
+      "generate_ms": 2355.0,
+      "retrieve_ms": 24.0
+    },
+    {
+      "request_id": "e6d30410",
+      "query": "What is the Kiddie Tax?",
+      "wall_ms": 1973.67,
+      "prompt_tokens": 856,
+      "completion_tokens": 31,
+      "generate_ms": 1660.4,
+      "retrieve_ms": 312.9
+    },
+    {
+      "request_id": "bf2ba52e",
+      "query": "How does a UTMA account affect financial aid eligibility?",
+      "wall_ms": 1288.9,
+      "prompt_tokens": 840,
+      "completion_tokens": 33,
+      "generate_ms": 992.5,
+      "retrieve_ms": 296.2
+    },
+    {
+      "request_id": "14f795b2",
+      "query": "Compare how UTMA accounts and feature stores both handle a kind of 'point in time' concept.",
+      "wall_ms": 2028.04,
+      "prompt_tokens": 707,
+      "completion_tokens": 68,
+      "generate_ms": 2003.8,
+      "retrieve_ms": 24.1
+    },
+    {
+      "request_id": "5f0af16e",
+      "query": "What debugging lesson applies to both the MatchEvent bug and the missing Prometheus counter?",
+      "wall_ms": 2023.13,
+      "prompt_tokens": 877,
+      "completion_tokens": 45,
+      "generate_ms": 1936.1,
+      "retrieve_ms": 86.9
+    },
+    {
+      "request_id": "7186b64d",
+      "query": "What's the best pizza topping?",
+      "wall_ms": 1509.83,
+      "prompt_tokens": 829,
+      "completion_tokens": 22,
+      "generate_ms": 1464.2,
+      "retrieve_ms": 45.4
+    },
+    {
+      "request_id": "70f9f6f5",
+      "query": "How do you create an index on a MongoDB collection?",
+      "wall_ms": 1488.66,
+      "prompt_tokens": 848,
+      "completion_tokens": 18,
+      "generate_ms": 1439.6,
+      "retrieve_ms": 48.7
+    },
+    {
+      "request_id": "88fa4a19",
+      "query": "What is the capital of France?",
+      "wall_ms": 1695.34,
+      "prompt_tokens": 849,
+      "completion_tokens": 31,
+      "generate_ms": 1645.3,
+      "retrieve_ms": 49.8
+    },
+    {
+      "request_id": "b59fa0d6",
+      "query": "What index should be added to persistentEventMatchAttempt?",
+      "wall_ms": 1814.83,
+      "prompt_tokens": 845,
+      "completion_tokens": 38,
+      "generate_ms": 1763.4,
+      "retrieve_ms": 51.2
+    },
+    {
+      "request_id": "9371aa8f",
+      "query": "What does AUTOINDEX mean in Milvus?",
+      "wall_ms": 1609.06,
+      "prompt_tokens": 784,
+      "completion_tokens": 15,
+      "generate_ms": 1311.3,
+      "retrieve_ms": 297.6
+    },
+    {
+      "request_id": "9a27f738",
+      "query": "What model is used for embeddings in this project?",
+      "wall_ms": 1241.79,
+      "prompt_tokens": 694,
+      "completion_tokens": 17,
+      "generate_ms": 1200.0,
+      "retrieve_ms": 41.5
+    },
+    {
+      "request_id": "75fde7a4",
+      "query": "What is the chunk size used for splitting notes?",
+      "wall_ms": 1313.18,
+      "prompt_tokens": 795,
+      "completion_tokens": 12,
+      "generate_ms": 1262.9,
+      "retrieve_ms": 50.2
+    },
+    {
+      "request_id": "c5291efc",
+      "query": "What does top_k control in retrieval?",
+      "wall_ms": 1855.58,
+      "prompt_tokens": 897,
+      "completion_tokens": 21,
+      "generate_ms": 1560.7,
+      "retrieve_ms": 294.7
+    }
+  ],
+  "raw_stage_records": [
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 7947.53,
+      "request_id": "3c39eae9"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 287.96,
+      "request_id": "3c39eae9"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 8235.93,
+      "request_id": "3c39eae9"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 4528.13,
+      "request_id": "3c39eae9",
+      "prompt_tokens": 761,
+      "completion_tokens": 26
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 894.96,
+      "request_id": "c30414bd"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 122.45,
+      "request_id": "c30414bd"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 1019.2,
+      "request_id": "c30414bd"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1723.06,
+      "request_id": "c30414bd",
+      "prompt_tokens": 750,
+      "completion_tokens": 34
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 51.67,
+      "request_id": "33f4ed95"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 4.14,
+      "request_id": "33f4ed95"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 55.95,
+      "request_id": "33f4ed95"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1694.8,
+      "request_id": "33f4ed95",
+      "prompt_tokens": 766,
+      "completion_tokens": 42
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 314.68,
+      "request_id": "2613f47e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 2.95,
+      "request_id": "2613f47e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 317.74,
+      "request_id": "2613f47e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1567.09,
+      "request_id": "2613f47e",
+      "prompt_tokens": 833,
+      "completion_tokens": 27
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 46.91,
+      "request_id": "9e238c6d"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 4.09,
+      "request_id": "9e238c6d"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 51.16,
+      "request_id": "9e238c6d"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1636.63,
+      "request_id": "9e238c6d",
+      "prompt_tokens": 786,
+      "completion_tokens": 36
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 84.98,
+      "request_id": "a5c52e3a"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 4.08,
+      "request_id": "a5c52e3a"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 89.2,
+      "request_id": "a5c52e3a"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1964.92,
+      "request_id": "a5c52e3a",
+      "prompt_tokens": 873,
+      "completion_tokens": 64
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 294.68,
+      "request_id": "724feaf2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 2.93,
+      "request_id": "724feaf2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 297.71,
+      "request_id": "724feaf2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1653.27,
+      "request_id": "724feaf2",
+      "prompt_tokens": 846,
+      "completion_tokens": 29
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 35.41,
+      "request_id": "db794469"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.2,
+      "request_id": "db794469"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 38.73,
+      "request_id": "db794469"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1937.87,
+      "request_id": "db794469",
+      "prompt_tokens": 846,
+      "completion_tokens": 51
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 48.89,
+      "request_id": "bce6e207"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.73,
+      "request_id": "bce6e207"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 52.76,
+      "request_id": "bce6e207"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1524.8,
+      "request_id": "bce6e207",
+      "prompt_tokens": 801,
+      "completion_tokens": 29
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 43.34,
+      "request_id": "a0207bf2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 4.24,
+      "request_id": "a0207bf2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 47.71,
+      "request_id": "a0207bf2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1611.44,
+      "request_id": "a0207bf2",
+      "prompt_tokens": 873,
+      "completion_tokens": 28
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 46.31,
+      "request_id": "7e171360"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.41,
+      "request_id": "7e171360"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 49.86,
+      "request_id": "7e171360"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1318.87,
+      "request_id": "7e171360",
+      "prompt_tokens": 873,
+      "completion_tokens": 10
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 85.79,
+      "request_id": "4c0718b1"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 5.17,
+      "request_id": "4c0718b1"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 91.17,
+      "request_id": "4c0718b1"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1732.01,
+      "request_id": "4c0718b1",
+      "prompt_tokens": 808,
+      "completion_tokens": 41
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 45.16,
+      "request_id": "32a03e8c"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 2.96,
+      "request_id": "32a03e8c"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 48.28,
+      "request_id": "32a03e8c"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1893.35,
+      "request_id": "32a03e8c",
+      "prompt_tokens": 905,
+      "completion_tokens": 42
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 395.4,
+      "request_id": "288a9441"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.08,
+      "request_id": "288a9441"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 398.66,
+      "request_id": "288a9441"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1968.83,
+      "request_id": "288a9441",
+      "prompt_tokens": 826,
+      "completion_tokens": 53
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 86.58,
+      "request_id": "ebb955d6"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 2.84,
+      "request_id": "ebb955d6"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 89.55,
+      "request_id": "ebb955d6"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1960.1,
+      "request_id": "ebb955d6",
+      "prompt_tokens": 863,
+      "completion_tokens": 50
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 40.39,
+      "request_id": "6a6c9c4c"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.23,
+      "request_id": "6a6c9c4c"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 43.74,
+      "request_id": "6a6c9c4c"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1719.01,
+      "request_id": "6a6c9c4c",
+      "prompt_tokens": 834,
+      "completion_tokens": 38
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 90.45,
+      "request_id": "58e2e755"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.37,
+      "request_id": "58e2e755"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 93.97,
+      "request_id": "58e2e755"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1042.99,
+      "request_id": "58e2e755",
+      "prompt_tokens": 807,
+      "completion_tokens": 45
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 19.13,
+      "request_id": "5c9b5f25"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 4.61,
+      "request_id": "5c9b5f25"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 23.96,
+      "request_id": "5c9b5f25"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 2354.96,
+      "request_id": "5c9b5f25",
+      "prompt_tokens": 843,
+      "completion_tokens": 75
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 310.02,
+      "request_id": "e6d30410"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 2.82,
+      "request_id": "e6d30410"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 312.95,
+      "request_id": "e6d30410"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1660.42,
+      "request_id": "e6d30410",
+      "prompt_tokens": 856,
+      "completion_tokens": 31
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 293.33,
+      "request_id": "bf2ba52e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 2.73,
+      "request_id": "bf2ba52e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 296.17,
+      "request_id": "bf2ba52e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 992.46,
+      "request_id": "bf2ba52e",
+      "prompt_tokens": 840,
+      "completion_tokens": 33
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 19.55,
+      "request_id": "14f795b2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 4.34,
+      "request_id": "14f795b2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 24.08,
+      "request_id": "14f795b2"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 2003.76,
+      "request_id": "14f795b2",
+      "prompt_tokens": 707,
+      "completion_tokens": 68
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 83.25,
+      "request_id": "5f0af16e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.53,
+      "request_id": "5f0af16e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 86.9,
+      "request_id": "5f0af16e"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1936.06,
+      "request_id": "5f0af16e",
+      "prompt_tokens": 877,
+      "completion_tokens": 45
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 41.66,
+      "request_id": "7186b64d"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.54,
+      "request_id": "7186b64d"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 45.35,
+      "request_id": "7186b64d"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1464.2,
+      "request_id": "7186b64d",
+      "prompt_tokens": 829,
+      "completion_tokens": 22
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 44.95,
+      "request_id": "70f9f6f5"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.61,
+      "request_id": "70f9f6f5"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 48.72,
+      "request_id": "70f9f6f5"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1439.62,
+      "request_id": "70f9f6f5",
+      "prompt_tokens": 848,
+      "completion_tokens": 18
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 44.98,
+      "request_id": "88fa4a19"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 4.64,
+      "request_id": "88fa4a19"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 49.78,
+      "request_id": "88fa4a19"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1645.32,
+      "request_id": "88fa4a19",
+      "prompt_tokens": 849,
+      "completion_tokens": 31
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 47.44,
+      "request_id": "b59fa0d6"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.6,
+      "request_id": "b59fa0d6"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 51.18,
+      "request_id": "b59fa0d6"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1763.43,
+      "request_id": "b59fa0d6",
+      "prompt_tokens": 845,
+      "completion_tokens": 38
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 293.76,
+      "request_id": "9371aa8f"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.75,
+      "request_id": "9371aa8f"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 297.62,
+      "request_id": "9371aa8f"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1311.28,
+      "request_id": "9371aa8f",
+      "prompt_tokens": 784,
+      "completion_tokens": 15
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 37.56,
+      "request_id": "9a27f738"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.8,
+      "request_id": "9a27f738"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 41.5,
+      "request_id": "9a27f738"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1200.04,
+      "request_id": "9a27f738",
+      "prompt_tokens": 694,
+      "completion_tokens": 17
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 46.47,
+      "request_id": "75fde7a4"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 3.57,
+      "request_id": "75fde7a4"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 50.18,
+      "request_id": "75fde7a4"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1262.86,
+      "request_id": "75fde7a4",
+      "prompt_tokens": 795,
+      "completion_tokens": 12
+    },
+    {
+      "event": "stage_timing",
+      "stage": "embed_query",
+      "duration_ms": 291.81,
+      "request_id": "c5291efc"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "vector_search",
+      "duration_ms": 2.81,
+      "request_id": "c5291efc"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "retrieve_total",
+      "duration_ms": 294.73,
+      "request_id": "c5291efc"
+    },
+    {
+      "event": "stage_timing",
+      "stage": "generate",
+      "duration_ms": 1560.68,
+      "request_id": "c5291efc",
+      "prompt_tokens": 897,
+      "completion_tokens": 21
+    }
+  ]
+}

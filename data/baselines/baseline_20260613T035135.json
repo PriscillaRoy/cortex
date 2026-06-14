@@ -1,0 +1,216 @@
+{
+  "timestamp": "20260613T035135",
+  "prompt_version": "v2_concise_2sentence",
+  "results": [
+    {
+      "query": "What is point-in-time correctness in a feature store?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Point-in-Time Correctness refers to ensuring that when generating training data, you must join feature values \"as they were\" at the time of the label event \u2014 not the current value.",
+      "prompt_tokens": 761,
+      "completion_tokens": 38
+    },
+    {
+      "query": "What's the tradeoff between streaming and batch feature computation?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Streaming feature computation gives near-real-time freshness but costs more in infrastructure and complexity, while batch computation is cheaper but features can be stale by up to 24 hours.",
+      "prompt_tokens": 750,
+      "completion_tokens": 34
+    },
+    {
+      "query": "What is the difference between an offline store and an online store?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "An offline store holds historical feature values, usually in a data warehouse or columnar format, used to generate training datasets, whereas an online store holds the latest feature values, optimized for low-latency point lookups.",
+      "prompt_tokens": 766,
+      "completion_tokens": 44
+    },
+    {
+      "query": "What causes training/serving skew?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Training/serving skew occurs when feature values are not joined \"as they were\" at the time of the label event, but instead with their current value.",
+      "prompt_tokens": 833,
+      "completion_tokens": 32
+    },
+    {
+      "query": "What MongoDB index was missing in the debugging notes?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "A Guid index was missing. \n\ndb.persistentEventMatchAttempt.createIndex({ guid: 1 })",
+      "prompt_tokens": 786,
+      "completion_tokens": 21
+    },
+    {
+      "query": "Summarize the lesson from the MatchEvent debugging log.",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "The match console frontend is showing zero results when searching for MatchEvent entities by GUID, but the events exist in MongoDB.",
+      "prompt_tokens": 873,
+      "completion_tokens": 25
+    },
+    {
+      "query": "Why did the search return empty results instead of an error?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "The search returned empty results instead of an error because the application swallows the timeout error and returns an empty list.",
+      "prompt_tokens": 846,
+      "completion_tokens": 24
+    },
+    {
+      "query": "What was the root cause of the MatchEvent search bug?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "The root cause of the MatchEvent search bug was that the `persistentEventMatchAttempt` collection did not have an index on the `guid` field, causing a full collection scan to trigger when searching by GUID.",
+      "prompt_tokens": 846,
+      "completion_tokens": 44
+    },
+    {
+      "query": "How do you handle the trailing pipe bug in Grafana variable filters?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Filter out empty strings before joining the variable values, or use `type=~\"^(event|person)$\"` with explicit anchors.",
+      "prompt_tokens": 801,
+      "completion_tokens": 27
+    },
+    {
+      "query": "Why might a Prometheus counter be missing from a dashboard entirely?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "A Prometheus counter might be missing from a dashboard entirely because it has never been incremented, not just because its value is zero. Always check whether the series exists at all (using `count(metric_name)`) before assuming the value is 0.",
+      "prompt_tokens": 873,
+      "completion_tokens": 50
+    },
+    {
+      "query": "What PromQL pattern avoids gaps when summing across series?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "sum(metric_name) or vector(0).",
+      "prompt_tokens": 873,
+      "completion_tokens": 10
+    },
+    {
+      "query": "What's the difference between a missing metric and a zero-value metric?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "A missing metric does not exist as a series at all, it doesn't show up as 0, and doesn't appear in the query results. A zero-value metric simply exists but is currently measured to be 0.",
+      "prompt_tokens": 808,
+      "completion_tokens": 46
+    },
+    {
+      "query": "What is the difference between Q-learning and SARSA?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Q-learning is off-policy, updating Q(s,a) using the maximum possible Q-value of the next state, while SARSA is on-policy, updating Q(s,a) using the Q-value of the action actually taken next.",
+      "prompt_tokens": 905,
+      "completion_tokens": 46
+    },
+    {
+      "query": "What is Direct Preference Optimization?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Direct Preference Optimization (DPO) skips training a separate reward model entirely and directly optimizes the policy to increase the relative likelihood of preferred responses over rejected ones.",
+      "prompt_tokens": 826,
+      "completion_tokens": 33
+    },
+    {
+      "query": "What is Constitutional AI?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Constitutional AI is an Anthropic approach using a set of written principles (\"constitution\") to critique and revise its own outputs, generating training data for both supervised fine-tuning and preference-modeling stages.",
+      "prompt_tokens": 863,
+      "completion_tokens": 42
+    },
+    {
+      "query": "Why does RLHF use PPO instead of Q-learning?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "RLHF uses PPO (Proximal Policy Optimization) rather than Q-learning because the action space (next-token distribution) is huge and continuous-ish, making Q-learning impractical. \n\nPPO is used to optimize the policy against a reward model trained on human preference data.",
+      "prompt_tokens": 834,
+      "completion_tokens": 57
+    },
+    {
+      "query": "In a grid world with a cliff, why would Q-learning and SARSA learn different paths?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Q-learning learns the shortest path along the cliff edge because it assumes optimal future actions. SARSA, on the other hand, learns a safer path further from the cliff as it accounts for the chance of a random exploratory step causing a fall.",
+      "prompt_tokens": 807,
+      "completion_tokens": 50
+    },
+    {
+      "query": "What's the difference between a 529 plan and a UTMA account?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "A 529 plan allows tax-free growth if used for qualified education expenses, but counts as a parental asset for FAFSA purposes. A UTMA account has more flexible use options but is counted more heavily against financial aid eligibility and is subject to the Kiddie Tax on growth.",
+      "prompt_tokens": 843,
+      "completion_tokens": 57
+    },
+    {
+      "query": "What is the Kiddie Tax?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "The Kiddie Tax is a rule that taxes unearned income from a UTMA account above a certain threshold at the parent's marginal tax rate, rather than the child's.",
+      "prompt_tokens": 856,
+      "completion_tokens": 36
+    },
+    {
+      "query": "How does a UTMA account affect financial aid eligibility?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "A UTMA account counts as the student's own asset for FAFSA purposes, making it more heavily against financial aid eligibility.",
+      "prompt_tokens": 840,
+      "completion_tokens": 27
+    },
+    {
+      "query": "Compare how UTMA accounts and feature stores both handle a kind of 'point in time' concept.",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "UTMA accounts and feature stores both deal with \"point-in-time\" concepts, where historical data needs to be preserved at specific points in time. In UTMA accounts, this means maintaining the child's financial situation as it was up until they reached majority age; in feature stores, it involves preserving historical feature values \"as they were\" at the time of the label for training datasets.",
+      "prompt_tokens": 707,
+      "completion_tokens": 78
+    },
+    {
+      "query": "What debugging lesson applies to both the MatchEvent bug and the missing Prometheus counter?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Always check whether a series exists at all before assuming its value is zero. This helps differentiate between \"missing from the dashboard\" and \"value is zero\" as distinct failure modes with different causes.",
+      "prompt_tokens": 877,
+      "completion_tokens": 40
+    },
+    {
+      "query": "What's the best pizza topping?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "I'm not able to answer that question as it is unrelated to the context provided about reinforcement learning (RL) basics, fine-tuning with RLHF, and DPO.",
+      "prompt_tokens": 829,
+      "completion_tokens": 36
+    },
+    {
+      "query": "How do you create an index on a MongoDB collection?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "To create an index on a MongoDB collection, use the `db.collection.createIndex({ field: 1 })` command.",
+      "prompt_tokens": 848,
+      "completion_tokens": 26
+    },
+    {
+      "query": "What is the capital of France?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "I'm not aware of any information about the capital of France in the provided context.",
+      "prompt_tokens": 849,
+      "completion_tokens": 18
+    },
+    {
+      "query": "What index should be added to persistentEventMatchAttempt?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "db.persistentEventMatchAttempt.createIndex({ guid: 1 })",
+      "prompt_tokens": 845,
+      "completion_tokens": 14
+    },
+    {
+      "query": "What does AUTOINDEX mean in Milvus?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "AUTOINDEX is not mentioned in the provided context, therefore I cannot determine its meaning.",
+      "prompt_tokens": 784,
+      "completion_tokens": 18
+    },
+    {
+      "query": "What model is used for embeddings in this project?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "No answer can be determined based on the provided context. The text mentions various models such as PPO-based RLHF, DPO, and Bradley-Terry preference model, but it does not specifically mention a model for embeddings.",
+      "prompt_tokens": 694,
+      "completion_tokens": 46
+    },
+    {
+      "query": "What is the chunk size used for splitting notes?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "The context does not mention any specific chunk size being used.",
+      "prompt_tokens": 795,
+      "completion_tokens": 13
+    },
+    {
+      "query": "What does top_k control in retrieval?",
+      "prompt_version": "v2_concise_2sentence",
+      "answer": "Not specified. The provided context only discusses reinforcement learning and feature stores, but not retrieval or top_k.",
+      "prompt_tokens": 897,
+      "completion_tokens": 22
+    }
+  ]
+}

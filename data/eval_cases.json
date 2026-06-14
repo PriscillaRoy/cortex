@@ -1,0 +1,347 @@
+[
+  {
+    "query": "What is point-in-time correctness in a feature store?",
+    "expected_sources": [
+      "feature_store_design.md"
+    ],
+    "expected_keywords": [
+      "point-in-time",
+      "training",
+      "feature"
+    ],
+    "unanswerable": false,
+    "notes": "Core concept from feature_store_design. Answer must connect point-in-time to training data correctness."
+  },
+  {
+    "query": "What's the tradeoff between streaming and batch feature computation?",
+    "expected_sources": [
+      "feature_store_design.md"
+    ],
+    "expected_keywords": [
+      "streaming",
+      "batch"
+    ],
+    "unanswerable": false,
+    "notes": "Must identify both sides of the tradeoff. Accepts any accurate framing of freshness vs cost/complexity."
+  },
+  {
+    "query": "What is the difference between an offline store and an online store?",
+    "expected_sources": [
+      "feature_store_design.md"
+    ],
+    "expected_keywords": [
+      "offline",
+      "online"
+    ],
+    "unanswerable": false,
+    "notes": "Both terms must appear. Intentionally loose - any accurate distinguishing description qualifies."
+  },
+  {
+    "query": "What causes training/serving skew?",
+    "expected_sources": [
+      "feature_store_design.md"
+    ],
+    "expected_keywords": [
+      "skew",
+      "training",
+      "serving"
+    ],
+    "unanswerable": false,
+    "notes": "All three terms expected. The causal mechanism (features computed differently at train vs serve time) is the key fact."
+  },
+  {
+    "query": "What MongoDB index was missing in the debugging notes?",
+    "expected_sources": [
+      "debug_matchevent_search.md"
+    ],
+    "expected_keywords": [
+      "guid"
+    ],
+    "unanswerable": false,
+    "notes": "guid is the specific, non-negotiable fact. persistentEventMatchAttempt is also acceptable as a secondary keyword but not required - the index field name is the answer."
+  },
+  {
+    "query": "Summarize the lesson from the MatchEvent debugging log.",
+    "expected_sources": [
+      "debug_matchevent_search.md"
+    ],
+    "expected_keywords": [
+      "index"
+    ],
+    "unanswerable": false,
+    "notes": "The lesson is about missing indexes causing silent failures. Both keywords expected as they anchor the specific lesson.",
+    "eval_criterion": "The answer must convey that the lesson is about a missing database index causing silent failures \u2014 specifically that a missing index on a queried field causes a full collection scan that times out and returns empty results instead of an error."
+  },
+  {
+    "query": "Why did the search return empty results instead of an error?",
+    "expected_sources": [
+      "debug_matchevent_search.md"
+    ],
+    "expected_keywords": [
+      "index",
+      "query"
+    ],
+    "unanswerable": false,
+    "notes": "The mechanism: missing index causes a full-collection scan that returns nothing rather than throwing. 'index' and 'query' are the key structural terms."
+  },
+  {
+    "query": "What was the root cause of the MatchEvent search bug?",
+    "expected_sources": [
+      "debug_matchevent_search.md"
+    ],
+    "expected_keywords": [
+      "guid",
+      "index"
+    ],
+    "unanswerable": false,
+    "notes": "Same core facts as Q5/Q6 but framed as root cause. guid + index are both required."
+  },
+  {
+    "query": "How do you handle the trailing pipe bug in Grafana variable filters?",
+    "expected_sources": [
+      "promql_patterns.md"
+    ],
+    "expected_keywords": [
+      "pipe",
+      "filter"
+    ],
+    "unanswerable": false,
+    "notes": "The fix involves filtering empty strings from the variable values before joining. 'pipe' and 'filter' anchor the mechanism."
+  },
+  {
+    "query": "Why might a Prometheus counter be missing from a dashboard entirely?",
+    "expected_sources": [
+      "promql_patterns.md"
+    ],
+    "expected_keywords": [
+      "counter",
+      "metric"
+    ],
+    "unanswerable": false,
+    "notes": "Answer: the series has never been emitted (counter hasn't been incremented yet). 'counter' and 'metric' are the key structural terms."
+  },
+  {
+    "query": "What PromQL pattern avoids gaps when summing across series?",
+    "expected_sources": [
+      "promql_patterns.md"
+    ],
+    "expected_keywords": [
+      "or",
+      "vector"
+    ],
+    "unanswerable": false,
+    "notes": "The specific pattern: sum(metric) or vector(0). Both 'or' and 'vector' must appear - they name the actual PromQL construct."
+  },
+  {
+    "query": "What's the difference between a missing metric and a zero-value metric?",
+    "expected_sources": [
+      "promql_patterns.md"
+    ],
+    "expected_keywords": [
+      "missing",
+      "zero"
+    ],
+    "unanswerable": false,
+    "notes": "Both terms must appear and be distinguished. A missing metric has no series; a zero-value metric exists but hasn't been incremented."
+  },
+  {
+    "query": "What is the difference between Q-learning and SARSA?",
+    "expected_sources": [
+      "rl_basics.md"
+    ],
+    "expected_keywords": [
+      "Q-learning",
+      "SARSA",
+      "policy"
+    ],
+    "unanswerable": false,
+    "notes": "The key distinction is off-policy (Q-learning) vs on-policy (SARSA). All three keywords expected. 'off-policy' or 'on-policy' as part of the answer is ideal but not separately required - 'policy' captures it."
+  },
+  {
+    "query": "What is Direct Preference Optimization?",
+    "expected_sources": [
+      "rl_basics.md"
+    ],
+    "expected_keywords": [
+      "DPO",
+      "reward model"
+    ],
+    "unanswerable": false,
+    "notes": "DPO skips training a reward model separately. Both 'DPO' and 'reward model' expected - they name the technique and what it replaces."
+  },
+  {
+    "query": "What is Constitutional AI?",
+    "expected_sources": [
+      "rl_basics.md"
+    ],
+    "expected_keywords": [
+      "Constitutional",
+      "principles"
+    ],
+    "unanswerable": false,
+    "notes": "Anthropic's approach using written principles. 'Constitutional' and 'principles' (or 'constitution') anchor it."
+  },
+  {
+    "query": "Why does RLHF use PPO instead of Q-learning?",
+    "expected_sources": [
+      "rl_basics.md"
+    ],
+    "expected_keywords": [
+      "PPO",
+      "action space"
+    ],
+    "unanswerable": false,
+    "notes": "The reason: LLM action spaces (vocabulary) are too large for tabular Q-learning. 'PPO' and 'action space' are both required."
+  },
+  {
+    "query": "In a grid world with a cliff, why would Q-learning and SARSA learn different paths?",
+    "expected_sources": [
+      "rl_basics.md"
+    ],
+    "expected_keywords": [
+      "cliff",
+      "Q-learning",
+      "SARSA"
+    ],
+    "unanswerable": false,
+    "notes": "Q-learning learns the optimal but risky cliff-edge path; SARSA learns a safer path because it accounts for its own exploratory policy. All three keywords expected."
+  },
+  {
+    "query": "What's the difference between a 529 plan and a UTMA account?",
+    "expected_sources": [
+      "utma_kiddie_tax.md"
+    ],
+    "expected_keywords": [
+      "529",
+      "UTMA"
+    ],
+    "unanswerable": false,
+    "notes": "Both plan types must be named and contrasted. Intentionally broad - any accurate distinguishing description qualifies."
+  },
+  {
+    "query": "What is the Kiddie Tax?",
+    "expected_sources": [
+      "utma_kiddie_tax.md"
+    ],
+    "expected_keywords": [
+      "Kiddie Tax",
+      "unearned income"
+    ],
+    "unanswerable": false,
+    "notes": "The Kiddie Tax applies to unearned income (e.g. UTMA investment gains) above a threshold for children under 19 (or full-time students under 24). Both terms required."
+  },
+  {
+    "query": "How does a UTMA account affect financial aid eligibility?",
+    "expected_sources": [
+      "utma_kiddie_tax.md"
+    ],
+    "expected_keywords": [
+      "UTMA",
+      "FAFSA"
+    ],
+    "unanswerable": false,
+    "notes": "UTMA assets count as the student's own asset on FAFSA, assessed at a higher rate than parental assets. Both 'UTMA' and 'FAFSA' anchor this.",
+    "eval_criterion": "The answer must convey that a UTMA account is counted as the student's own asset on financial aid applications (such as FAFSA) and is assessed at a higher rate than parental assets, making it more detrimental to financial aid eligibility."
+  },
+  {
+    "query": "Compare how UTMA accounts and feature stores both handle a kind of 'point in time' concept.",
+    "expected_sources": [
+      "utma_kiddie_tax.md",
+      "feature_store_design.md"
+    ],
+    "expected_keywords": [
+      "UTMA",
+      "feature"
+    ],
+    "unanswerable": false,
+    "notes": "Cross-document query - should retrieve from both notes. Requires both topics to appear. This tests multi-source retrieval."
+  },
+  {
+    "query": "What debugging lesson applies to both the MatchEvent bug and the missing Prometheus counter?",
+    "expected_sources": [
+      "debug_matchevent_search.md",
+      "promql_patterns.md"
+    ],
+    "expected_keywords": [
+      "exists",
+      "metric"
+    ],
+    "unanswerable": false,
+    "notes": "Cross-document reasoning: always verify the series/index exists before assuming a value of zero. 'exists' (or 'exist') and 'metric' capture the abstracted lesson."
+  },
+  {
+    "query": "What's the best pizza topping?",
+    "expected_sources": [],
+    "expected_keywords": [
+      "context"
+    ],
+    "unanswerable": true,
+    "notes": "Genuinely unanswerable from notes. A correct response says the information is not in the context. Any hallucinated answer (e.g. 'pepperoni') is a failure."
+  },
+  {
+    "query": "How do you create an index on a MongoDB collection?",
+    "expected_sources": [],
+    "expected_keywords": [
+      "context"
+    ],
+    "unanswerable": true,
+    "notes": "General MongoDB knowledge not in notes. The model should decline rather than answer from general knowledge. Watch for: model retrieves the MatchEvent debugging chunk and answers specifically about guid/persistentEventMatchAttempt - a retrieval-grounding failure we saw in the baseline run.",
+    "eval_criterion": "The answer must decline to answer the general question and indicate that this general MongoDB knowledge is not covered in the provided context. It should NOT provide a general createIndex tutorial \u2014 that information is not in the notes."
+  },
+  {
+    "query": "What is the capital of France?",
+    "expected_sources": [],
+    "expected_keywords": [
+      "context"
+    ],
+    "unanswerable": true,
+    "notes": "Unanswerable from notes. Should decline clearly."
+  },
+  {
+    "query": "What index should be added to persistentEventMatchAttempt?",
+    "expected_sources": [
+      "debug_matchevent_search.md"
+    ],
+    "expected_keywords": [
+      "guid"
+    ],
+    "unanswerable": false,
+    "notes": "Specific factual lookup. guid is the only required keyword - a one-word answer technically passes, as does a full command. This is intentionally lenient on format."
+  },
+  {
+    "query": "What does AUTOINDEX mean in Milvus?",
+    "expected_sources": [],
+    "expected_keywords": [
+      "context"
+    ],
+    "unanswerable": true,
+    "notes": "AUTOINDEX is not in the notes. Should say so. Watch for hallucination."
+  },
+  {
+    "query": "What model is used for embeddings in this project?",
+    "expected_sources": [],
+    "expected_keywords": [
+      "context"
+    ],
+    "unanswerable": true,
+    "notes": "The notes don't describe the project's own infrastructure. Should say so."
+  },
+  {
+    "query": "What is the chunk size used for splitting notes?",
+    "expected_sources": [],
+    "expected_keywords": [
+      "context"
+    ],
+    "unanswerable": true,
+    "notes": "Same as above - not in the notes. Should say so."
+  },
+  {
+    "query": "What does top_k control in retrieval?",
+    "expected_sources": [],
+    "expected_keywords": [
+      "context"
+    ],
+    "unanswerable": true,
+    "notes": "Not in the notes. Should say so. Interestingly, the model sometimes retrieves rl_basics or feature_store chunks and tries to relate top_k to those - a retrieval hallucination worth watching."
+  }
+]
