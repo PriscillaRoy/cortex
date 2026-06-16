@@ -1,4 +1,24 @@
+# Python
 __pycache__/
 *.pyc
-data/cortex.db*
+.Python
+venv/
 .venv/
+
+# Vector store (rebuilt by python -m app.ingest)
+data/cortex.db
+data/latency_raw.json
+data/eval_results.json
+
+# Baselines (local only — machine-specific)
+data/baselines/
+
+# Model cache
+.cache/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/

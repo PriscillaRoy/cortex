@@ -228,3 +228,218 @@ retrieved context. To benchmark v1 specifically: flip `CURRENT_VERSION =
 "v1_verbose"`, rerun `latency_report.py`, flip back. This is how the v1
 numbers in Section 1's table were produced.
 
+---
+
+## After Phase 2 — Eval harness
+
+```
++---------------------------------------------------------------+
+|  data/eval_cases.json                                          |
+|    30 hand-written cases, each with:                           |
+|      - query                                                    |
+|      - expected_sources  (which note file retrieval should hit) |
+|      - expected_keywords (what key terms the answer must have)  |
+|      - eval_criterion    (plain-English for LLM judge)          |
+|      - unanswerable      (bool - should model decline?)         |
+|                                                                  |
+|  app/eval.py                                                    |
+|    run_eval():                                                  |
+|      for each case:                                             |
+|        ask(query, seed=BASELINE_SEED)                           |
+|          |- score_retrieval: chunk.source in expected_sources?  |
+|          `- score_generation: all expected_keywords in answer?  |
+|        if --llm-judge AND keyword fail AND eval_criterion:       |
+|          judge_with_llm(query, answer, criterion)               |
+|          -> YES/NO overrides keyword result                      |
+|                                                                  |
+|    compute_scores():                                            |
+|      retrieval_hit_rate  = hits / scored_queries                |
+|      generation_score    = final_pass / total  (judge-adjusted  |
+|                            when judge ran, else keyword)         |
+|                                                                  |
+|    CI gates (--threshold, --max-regression):                    |
+|      --threshold 0.80         absolute floor                    |
+|      --max-regression 0.05    max drop vs previous run          |
+|      both: exit 1 if either fails                               |
+|                                                                  |
+|  Output per-query:                                              |
+|    R:+/R:-/R:~  retrieval hit/miss/N-A                         |
+|    G:+/G:-      keyword pass/fail                               |
+|    J:+/J:-      judge pass/fail (only when --llm-judge)         |
++---------------------------------------------------------------+
+```
+
+**New files:**
+
+| File | Role |
+|---|---|
+| `app/eval.py` | Eval harness: per-query scoring, aggregate report, CI gate |
+| `data/eval_cases.json` | 30 test cases with expected sources, keywords, criteria |
+
+**What the symbols mean:**
+
+  R:+ = Retrieval HIT  (correct source file retrieved)
+  R:~ = Retrieval N/A  (unanswerable query, no expected source)
+  R:- = Retrieval MISS (wrong source retrieved)
+  G:+ = Generation PASS (all keyword groups satisfied)
+  G:- = Generation FAIL (at least one keyword missing)
+  J:+ = Judge PASS  (LLM judge overrode keyword failure as paraphrase)
+  J:- = Judge FAIL  (LLM judge confirmed the failure is genuine)
+
+**Real results (v1 verbose prompt, seed=42):**
+  Retrieval:  23/23 (100%)  Generation keyword: 27/30 (90%)
+  With LLM judge: 29/30 (96.7%) [2 overrides: paraphrase; 1 confirmed: hallucination]
+
+---
+
+## After Phase 3 — Timeouts + graceful degradation
+
+```
++---------------------------------------------------------------+
+|  app/config.py:                                                 |
+|    TIMEOUT_RETRIEVE_S = 3.0   # embed + vector search          |
+|    TIMEOUT_GENERATE_S = 12.0  # LLM generation                 |
+|                                                                  |
+|  app/rag.retrieve():                                            |
+|    try:                                                          |
+|      _run_with_timeout(_vector_retrieve, TIMEOUT_RETRIEVE_S)   |
+|        -> embed_query + vector_search (Milvus)                  |
+|    except TimeoutError:                                         |
+|      bm25_search(query)  <- app/bm25.py, no Milvus needed      |
+|      fallback=True                                              |
+|                                                                  |
+|  app/rag.ask() / ask_stream():                                  |
+|    retrieve() -> (chunks, retrieval_fallback)                   |
+|    try:                                                          |
+|      _run_with_timeout(generate, TIMEOUT_GENERATE_S)           |
+|    except TimeoutError:                                         |
+|      return AskResult(answer="", generation_fallback=True)      |
+|      OR yield {"type": "fallback", ...}  for streaming          |
+|                                                                  |
+|  static/index.html:                                             |
+|    on "chunks" event + retrieval_fallback=True:                 |
+|      show yellow banner "Vector search timed out - BM25 used"   |
+|    on "fallback" event (generation timeout):                    |
+|      show yellow banner "Generation timed out - chunks shown"   |
+|      (chunks already rendered above the banner)                 |
++---------------------------------------------------------------+
+```
+
+**New/changed files:**
+
+| File | Role |
+|---|---|
+| `app/bm25.py` | NEW: in-memory BM25 keyword index built from Milvus chunks at first use. Pure Python, no extra deps. Used as retrieval fallback |
+| `app/rag.py` *(changed)* | `retrieve()` returns `(chunks, fallback_bool)`. Both `ask()` and `ask_stream()` have timeout + fallback paths |
+| `app/config.py` *(changed)* | Adds timeout constants `TIMEOUT_RETRIEVE_S`, `TIMEOUT_GENERATE_S` |
+| `app/main.py` *(changed)* | SSE stream handles `fallback` event type + `retrieval_fallback` flag |
+| `static/index.html` *(changed)* | Yellow degraded-state banner for both fallback paths |
+| `tests/conftest.py` | NEW: session-scoped ingest fixture so tests don't require pre-populated DB |
+| `tests/test_retrieval.py` *(changed)* | Updated for tuple return; new `test_retrieve_fallback_flag_false_on_normal_path` |
+
+**Threading vs async note**: timeouts use `concurrent.futures.ThreadPoolExecutor`
+rather than `asyncio` to avoid refactoring the synchronous pipeline. This
+is acceptable here because Ollama serializes inference (one request at a
+time regardless) so async parallelism wouldn't improve throughput at the
+real bottleneck. For a cloud LLM API with true parallel generation, the
+correct production path is converting `generate()`/`generate_stream()`
+to `async def` with `httpx.AsyncClient` and FastAPI async route handlers.
+The migration would be: `def` -> `async def` throughout, `generate()` ->
+`await generate()`, `for chunk in generate_stream()` ->
+`async for chunk in generate_stream()`. The architecture is already
+compatible - it's a plumbing change, not a redesign.
+
+**To demo:**
+
+  Retrieval fallback: set TIMEOUT_RETRIEVE_S = 0.001 in config.py,
+  restart server, ask a question. Chunks appear (BM25) with yellow banner.
+
+  Generation fallback: set TIMEOUT_GENERATE_S = 0.001, restart, ask.
+  Chunks appear immediately, then yellow banner instead of answer.
+
+  Demo via the UI at http://localhost:8000 - the banners only render there.
+
+---
+
+## After Phase 4 — Agentic tool-calling with reasoning trace
+
+```
++---------------------------------------------------------------+
+|  POST /agent  (app/main.py)                                    |
+|       |                                                         |
+|       v                                                         |
+|  ask_agent_stream(query)  (app/agent.py)                       |
+|       |                                                         |
+|       |  messages = [system, user]                              |
+|       |                                                         |
+|       v  loop (max 8 steps):                                    |
+|  _call_ollama_with_tools(messages)                              |
+|       |                                                         |
+|       +--> tool_calls? ---------> _execute_tool(name, args)    |
+|       |         |                       |                       |
+|       |         |   app/tools/          |                       |
+|       |         |   search.py     <-----+  search_notes()       |
+|       |         |   list_notes.py <-----+  list_notes()         |
+|       |         |   summarize.py  <-----+  summarize_note()     |
+|       |         |                       |                       |
+|       |         v                       v                       |
+|       |    TraceEvent              tool result                  |
+|       |    (tool_call)   yield --> SSE stream                   |
+|       |    (tool_result) yield --> SSE stream                   |
+|       |         |                                               |
+|       |    append result to messages, loop back                 |
+|       |                                                         |
+|       +--> content? (final answer)                              |
+|                 |                                               |
+|            TraceEvent(answer) yield --> SSE stream              |
+|                                                                 |
+|  static/index.html:                                             |
+|    "agent mode" toggle -> POST /agent                           |
+|    trace panel shows each step live:                            |
+|      THINKING -> TOOL_CALL -> TOOL_RESULT -> ... -> answer      |
++---------------------------------------------------------------+
+```
+
+**New files:**
+
+| File | Role |
+|---|---|
+| `app/agent.py` | Agent loop: `_call_ollama_with_tools()` (Ollama /api/chat with tools), `_execute_tool()` (dispatch + type coercion), `ask_agent_stream()` (yields TraceEvents), `MAX_STEPS=8` safety limit |
+| `app/tools/search.py` | Wraps existing `retrieve()` as a named tool. Coerces `top_k` to int (LLMs sometimes send strings) |
+| `app/tools/list_notes.py` | Reads frontmatter (tags, date, title) from `data/notes/*.md`. Returns metadata without full content — the discovery step before summarize |
+| `app/tools/summarize.py` | Reads one note in full, LLM-summarizes it. Path traversal protected. Returns helpful error with available filenames if file not found |
+| `app/main.py` *(changed)* | Adds `POST /agent` endpoint, streams TraceEvents as SSE |
+| `static/index.html` *(changed)* | "agent mode" toggle, live trace panel (thinking/tool_call/tool_result/answer steps) |
+
+**How tool-calling works (Ollama /api/chat):**
+
+  We send: model + messages + tool definitions (JSON schemas)
+  Ollama returns either:
+    message.tool_calls -> LLM wants to call a tool (name + args)
+    message.content    -> LLM has a final answer
+
+  We loop: execute tool -> append result to messages -> send again.
+  The full message history goes on every iteration so the LLM has
+  complete context of what's been tried.
+
+**Key real-world findings from running it:**
+
+  1. llama3.2:3B sometimes skips list_notes and guesses filenames
+     directly (e.g. "observability.md" instead of listing first).
+     Larger models follow the system prompt more reliably. Fix options:
+     force list_notes as a mandatory first step in the system prompt,
+     or use a larger model.
+
+  2. LLMs send numeric arguments as strings ("6" not 6). Fixed with
+     type coercion in _execute_tool() before dispatch. Always coerce
+     known numeric params defensively.
+
+  3. On tool failure, small models sometimes return a text explanation
+     of the error instead of a corrected tool_call. Detected via
+     retry_signals list; loop continues with a correction hint instead
+     of surfacing the internal monologue as the final answer.
+
+  4. Error messages from tools carry real signal — summarize_note
+     returns the list of available files when a filename isn't found.
+     The model reads this and self-corrects. Good tool error messages
+     are part of the agent's reasoning loop, not just dev debugging.

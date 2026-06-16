@@ -1,0 +1,50 @@
+name: Eval CI Gate
+
+# DISABLED — workflow is ready but not active.
+# To enable: uncomment the 'on:' block below and swap app/llm.py
+# to use the Anthropic API (see LEARNINGS.md §12 for the full steps).
+#
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
+
+# Placeholder trigger that never fires in practice
+on:
+  workflow_dispatch:  # manual trigger only — run from GitHub Actions UI
+
+jobs:
+  eval:
+    name: RAG Eval
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ingest notes
+        run: python -m app.ingest
+
+      - name: Run eval gate (full — generation + retrieval)
+        run: |
+          python -m app.eval --threshold 0.80 --max-regression 0.05
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: data/eval_results.json
+          if-no-files-found: ignore

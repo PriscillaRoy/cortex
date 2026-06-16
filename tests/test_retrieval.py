@@ -2,30 +2,34 @@
 
 These run with whatever embedder is available (real model or fallback),
 so they pass both in local dev (with network) and in CI (without).
+
+Phase 3: retrieve() now returns (chunks, fallback_bool). Tests updated
+to unpack the tuple. A conftest.py fixture handles ingest so the DB
+is populated before these tests run.
 """
 
+import pytest
 from app.rag import retrieve
 
 
 def test_retrieve_returns_chunks():
-    results = retrieve("What is point-in-time correctness?", top_k=3)
+    chunks, fallback = retrieve("What is point-in-time correctness?", top_k=3)
 
-    assert len(results) == 3
-    for chunk in results:
+    assert len(chunks) == 3
+    for chunk in chunks:
         assert chunk.text
         assert chunk.source.endswith(".md")
         assert isinstance(chunk.score, float)
 
 
 def test_retrieve_respects_top_k():
-    results = retrieve("debugging", top_k=2)
-    assert len(results) == 2
+    chunks, _ = retrieve("debugging", top_k=2)
+    assert len(chunks) == 2
 
 
 def test_retrieve_covers_multiple_sources():
-    """Sanity check: across a few varied queries, we should see retrieval
-    pull from more than one source file (i.e. it isn't just always
-    returning the same chunk regardless of query)."""
+    """Sanity check: across varied queries, retrieval should pull from
+    more than one source file."""
     queries = [
         "feature store point in time correctness",
         "MongoDB index missing guid",
@@ -36,7 +40,14 @@ def test_retrieve_covers_multiple_sources():
 
     sources_seen: set[str] = set()
     for q in queries:
-        for chunk in retrieve(q, top_k=2):
+        chunks, _ = retrieve(q, top_k=2)
+        for chunk in chunks:
             sources_seen.add(chunk.source)
 
     assert len(sources_seen) >= 2
+
+
+def test_retrieve_fallback_flag_false_on_normal_path():
+    """On a healthy vector store, fallback should be False."""
+    _, fallback = retrieve("What is point-in-time correctness?", top_k=1)
+    assert fallback is False

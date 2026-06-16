@@ -482,7 +482,588 @@ path."
 
 ---
 
-## 11. Glossary (for your own reference)
+## 11. Phase 3 — Timeouts + graceful degradation
+
+### What we built
+
+Two independent fallback paths, each demoed via the UI:
+
+**Retrieval fallback (vector search timeout)**:
+  `retrieve()` wraps the embed+search call in a thread with
+  `TIMEOUT_RETRIEVE_S=3.0s` budget. On timeout: falls back to BM25
+  (Best Match 25) keyword search over the same chunks that are in
+  Milvus, via `app/bm25.py`. BM25 is pure Python, no Milvus needed.
+  The UI shows a yellow banner: "Vector search timed out - BM25 used."
+
+**Generation fallback (LLM generation timeout)**:
+  `ask()` / `ask_stream()` wrap the generate call with
+  `TIMEOUT_GENERATE_S=12.0s`. On timeout: `ask()` returns an
+  `AskResult` with `answer=""` and `generation_fallback=True`.
+  `ask_stream()` yields a `{"type": "fallback"}` SSE event. The
+  retrieved chunks are already sent to the UI before generation starts
+  (that's the streaming architecture), so the user sees useful context
+  even when generation times out. Yellow banner: "Generation timed out
+  - showing retrieved context only."
+
+**Timeout mechanism**: `concurrent.futures.ThreadPoolExecutor` with
+`Future.result(timeout=N)`. Synchronous threads rather than async —
+see "threading vs async" note below.
+
+### What each fallback gives the user
+
+  Normal path:    chunks + generated answer
+  Retrieval fail: BM25 chunks (lower semantic quality) + generated answer
+  Generation fail: vector chunks (full quality) + no answer, just chunks
+  Both fail:      BM25 chunks + no answer
+
+The key principle: **always give the user something**. A 500 error is
+never acceptable when the underlying data is available.
+
+### BM25 — how it works
+
+BM25 ranks chunks by term frequency adjusted for document length:
+
+  score = sum over query terms of:
+    IDF * (tf * (k1+1)) / (tf + k1 * (1 - b + b * dl/avgdl))
+
+  IDF = log((N - df + 0.5) / (df + 0.5) + 1)
+  tf  = term count in chunk
+  dl  = chunk length, avgdl = average chunk length
+  k1=1.5 (TF saturation), b=0.75 (length normalization)
+
+In plain terms: "how many times does this query word appear in this
+chunk, adjusted so long chunks aren't unfairly favored?" Not semantic —
+"index" and "database key" are unrelated to BM25. Good for exact or
+near-exact keyword queries; degrades gracefully for conceptual questions.
+
+The index is built lazily at first fallback use, from all chunks stored
+in Milvus, and cached in memory. Building it once is cheap (~16 chunks).
+At 100,000 chunks it would still be fast (BM25 is O(n*q) per query,
+where n=chunks and q=query terms, with tiny constants).
+
+### Threading vs async — the honest tradeoff
+
+We used `ThreadPoolExecutor` rather than `asyncio` to avoid refactoring
+the synchronous codebase. This is acceptable specifically here because:
+
+  1. Ollama serializes LLM inference — only one request runs at a time
+     regardless of how concurrent the server is. Async parallelism
+     wouldn't help at the actual bottleneck.
+  2. Retrieval and embedding are already fast (<100ms warm), so the
+     thread overhead relative to the work is small.
+
+For a production system with a cloud LLM API that handles parallel
+requests, async is the correct answer. The migration path:
+  - `def generate()` -> `async def generate()` with `httpx.AsyncClient`
+  - `def ask()` -> `async def ask()`, `asyncio.wait_for(generate(), 12)`
+  - FastAPI route handlers: `async def ask_endpoint()`
+  The architecture is already compatible — it's a plumbing change,
+  not a redesign.
+
+### Resume number this phase produces
+
+"p99 latency is bounded at 12s via per-stage timeout budgets, with
+graceful fallback to BM25 keyword retrieval (on vector search timeout)
+or raw retrieved chunks (on generation timeout), so the system never
+500s even when Ollama is unavailable."
+
+### How warmup vs regular runs are distinguished
+
+There is no explicit flag — it's the singleton pattern in `embeddings.py`:
+
+  _model = None  # module-level, lives for the process
+
+  def _try_load_model():
+      global _model
+      if _model is not None:   # <- already loaded: return immediately
+          return _model
+      _model = SentenceTransformer(...)  # <- first call: expensive load
+      return _model
+
+The warmup hook (`app/embeddings.warmup()`, called at FastAPI startup)
+is just the first caller in the process — it pays the load cost so the
+first real user request doesn't have to. Subsequent calls in the same
+process hit `_model is not None` and return instantly.
+
+The OS-level cache (cold-start going 31s -> 19s -> 8s across restarts)
+is separate: macOS keeps recently-read files in RAM, so even fresh
+processes benefit from the kernel having the model weights cached. Not
+controllable from Python — it just happens naturally with repeated runs.
+
+### Warmup and timeouts — why they don't conflict
+
+The key is ordering. FastAPI's `startup` event blocks the server from
+accepting requests until it completes. So the sequence is always:
+
+  1. startup event fires
+  2. warmup() called -> model loads (6.9s on M2, no timeout, blocks startup)
+  3. "Application startup complete" logged
+  4. server starts accepting requests  <- timeout machinery activates here
+  5. first real request: embed_query takes ~41ms (already warm)
+
+Timeouts only apply to per-request calls, which only happen after warmup.
+The warmup itself is not subject to TIMEOUT_RETRIEVE_S — it runs directly
+in the startup hook, outside the request pipeline entirely.
+
+The one edge case worth knowing: if warmup fails silently (network error
+downloading the model, falls back to hashing embedder), then the first
+real request would try to load the real model inside retrieve() — which
+WOULD hit the 3s timeout and fall back to BM25. In practice this doesn't
+happen once the model is cached locally, but it's why re-running
+`python -m app.ingest` after a model download failure is important.
+
+### Async migration — reference for future production work
+
+Current code uses `concurrent.futures.ThreadPoolExecutor` (sync threads).
+For a production system with a cloud LLM API, here's the full migration:
+
+**app/llm.py** — sync -> async:
+```python
+# CURRENT (sync)
+def generate_stream(prompt: str, timeout_seconds: float = 60.0, seed=None):
+    with httpx.stream("POST", url, json=payload, timeout=timeout_seconds) as r:
+        for line in r.iter_lines():
+            yield json.loads(line)
+
+def generate(prompt: str, ...) -> GenerateResult:
+    for chunk in generate_stream(prompt, ...):
+        ...
+
+# ASYNC VERSION
+import httpx
+
+async def generate_stream(prompt: str, timeout_seconds: float = 60.0, seed=None):
+    async with httpx.AsyncClient() as client:
+        async with client.stream("POST", url, json=payload,
+                                 timeout=timeout_seconds) as r:
+            async for line in r.aiter_lines():
+                if line:
+                    yield json.loads(line)
+
+async def generate(prompt: str, ...) -> GenerateResult:
+    async for chunk in generate_stream(prompt, ...):
+        ...
+```
+
+**app/rag.py** — remove ThreadPoolExecutor, use asyncio.wait_for:
+```python
+# CURRENT (threading)
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+
+def _run_with_timeout(fn, timeout, *args, **kwargs):
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(fn, *args, **kwargs)
+        return future.result(timeout=timeout)
+
+def retrieve(query, top_k=TOP_K):
+    try:
+        chunks = _run_with_timeout(_vector_retrieve, TIMEOUT_RETRIEVE_S)
+        return chunks, False
+    except FuturesTimeoutError:
+        return bm25_search(query, top_k), True
+
+# ASYNC VERSION
+import asyncio
+
+async def retrieve(query, top_k=TOP_K):
+    try:
+        chunks = await asyncio.wait_for(
+            _vector_retrieve_async(query, top_k),
+            timeout=TIMEOUT_RETRIEVE_S
+        )
+        return chunks, False
+    except asyncio.TimeoutError:
+        return bm25_search(query, top_k), True
+
+async def ask(query, top_k=TOP_K, seed=None):
+    chunks, retrieval_fallback = await retrieve(query, top_k)
+    prompt = build_prompt(query, chunks)
+    try:
+        gen_result = await asyncio.wait_for(
+            generate(prompt, seed=seed),
+            timeout=TIMEOUT_GENERATE_S
+        )
+        return AskResult(answer=gen_result.answer, ...)
+    except asyncio.TimeoutError:
+        return AskResult(answer="", generation_fallback=True, ...)
+```
+
+**app/main.py** — route handlers become async def:
+```python
+# CURRENT
+def ask_endpoint(request: AskRequest):
+    def event_stream():
+        for event in ask_stream(request.query):
+            yield _sse(event)
+    return StreamingResponse(event_stream(), ...)
+
+# ASYNC VERSION
+async def ask_endpoint(request: AskRequest):
+    async def event_stream():
+        async for event in ask_stream(request.query):
+            yield _sse(event)
+    return StreamingResponse(event_stream(), ...)
+```
+
+The embedding model (sentence-transformers) itself stays synchronous —
+it's a CPU/GPU-bound operation, not I/O-bound, so there's no async
+benefit. You'd run it in a thread pool explicitly:
+
+```python
+import asyncio
+loop = asyncio.get_event_loop()
+embedding = await loop.run_in_executor(None, embed_query, query)
+```
+
+**Why this matters for production**: with async, a FastAPI server on 1
+core can handle 100 concurrent requests — while one waits for the LLM
+API, another's retrieval runs, another's embedding runs. With threading,
+you need 100 threads (memory overhead, context switching). At low traffic
+(local Ollama, few concurrent users) threading is fine. At scale, async
+wins clearly.
+
+```bash
+# Normal operation (unchanged from before)
+uvicorn app.main:app
+# Open http://localhost:8000
+
+# Demo retrieval fallback
+# 1. In app/config.py, set TIMEOUT_RETRIEVE_S = 0.001
+# 2. Restart: uvicorn app.main:app
+# 3. Ask a question — yellow banner appears, BM25 chunks shown
+# 4. Revert TIMEOUT_RETRIEVE_S = 3.0
+
+# Demo generation fallback
+# 1. In app/config.py, set TIMEOUT_GENERATE_S = 0.001
+# 2. Restart: uvicorn app.main:app
+# 3. Ask a question — chunks appear, then yellow "timed out" banner
+# 4. Revert TIMEOUT_GENERATE_S = 12.0
+
+# Or: stop Ollama entirely (quit the app) then ask a question
+# Generation will fail with a connection error -> same fallback path
+```
+
+---
+
+## 12. Production CI with a real LLM API (Option C reference)
+
+**Context**: our current CI (`--retrieval-only`) skips generation scoring
+because Ollama isn't available on GitHub Actions runners. In production
+ML teams, you'd use a real hosted API (Anthropic Claude, OpenAI, etc.)
+so CI can run the full eval including generation quality. This is how it
+actually works at companies like Anthropic or OpenAI internally.
+
+No code changes made here — this is a reference for when it matters.
+
+### Step 1 — Add the API key as a GitHub Actions secret
+
+In your GitHub repo: Settings -> Secrets and variables -> Actions ->
+New repository secret.
+
+  Name:  ANTHROPIC_API_KEY   (or OPENAI_API_KEY)
+  Value: sk-ant-...
+
+This makes it available as `${{ secrets.ANTHROPIC_API_KEY }}` in the
+workflow without it appearing in logs or being visible in the repo.
+
+### Step 2 — Replace app/llm.py with an API client
+
+Currently `llm.py` calls Ollama on localhost. Swap it for the Anthropic
+(or OpenAI) SDK — the interface stays identical so nothing else changes:
+
+```python
+# app/llm.py — Anthropic API version
+import os
+from dataclasses import dataclass
+import anthropic
+
+client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+@dataclass
+class GenerateResult:
+    answer: str
+    prompt_tokens: int
+    completion_tokens: int
+
+def generate(prompt: str, seed: int | None = None, **kwargs) -> GenerateResult:
+    # Anthropic doesn't support seed. Use temperature=0 instead —
+    # greedy decoding is deterministic on any API.
+    message = client.messages.create(
+        model="claude-haiku-4-5",  # fast + cheap for eval runs
+        max_tokens=256,
+        temperature=0,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return GenerateResult(
+        answer=message.content[0].text,
+        prompt_tokens=message.usage.input_tokens,
+        completion_tokens=message.usage.output_tokens,
+    )
+
+def generate_stream(prompt: str, seed: int | None = None, **kwargs):
+    """Yields dicts matching Ollama's format so rag.py/main.py don't change."""
+    with client.messages.stream(
+        model="claude-haiku-4-5",
+        max_tokens=256,
+        temperature=0,
+        messages=[{"role": "user", "content": prompt}],
+    ) as stream:
+        for text in stream.text_stream:
+            yield {"response": text, "done": False}
+        usage = stream.get_final_message().usage
+        yield {
+            "response": "",
+            "done": True,
+            "prompt_eval_count": usage.input_tokens,
+            "eval_count": usage.output_tokens,
+        }
+```
+
+For OpenAI instead:
+```python
+from openai import OpenAI
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+response = client.chat.completions.create(
+    model="gpt-4o-mini",   # fast + cheap for eval
+    temperature=0,
+    messages=[{"role": "user", "content": prompt}],
+)
+return GenerateResult(
+    answer=response.choices[0].message.content,
+    prompt_tokens=response.usage.prompt_tokens,
+    completion_tokens=response.usage.completion_tokens,
+)
+```
+
+### Step 3 — Update requirements.txt
+
+```
+anthropic>=0.30.0
+# or:
+openai>=1.30.0
+```
+
+### Step 4 — .github/workflows/eval.yml
+
+Create this file at `.github/workflows/eval.yml` in your project root
+(create the `.github/workflows/` directories first):
+
+```yaml
+name: Eval CI Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  eval:
+    name: RAG Eval
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ingest notes
+        run: python -m app.ingest
+
+      - name: Run eval gate (full — generation + retrieval)
+        run: |
+          python -m app.eval --threshold 0.80 --max-regression 0.05
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: data/eval_results.json
+          if-no-files-found: ignore
+```
+
+### Step 5 — .gitignore
+
+Create `.gitignore` in your project root:
+
+```
+# Python
+__pycache__/
+*.pyc
+.Python
+venv/
+.venv/
+
+# Vector store (rebuilt by python -m app.ingest)
+data/cortex.db
+data/latency_raw.json
+data/eval_results.json
+
+# Baselines (local only — machine-specific)
+data/baselines/
+
+# Model cache
+.cache/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+```
+
+### Why temperature=0 replaces seed=42
+
+Our local Ollama setup uses `seed=42` for reproducibility. Cloud APIs
+handle this differently:
+  - **seed** (Ollama/OpenAI): hints to use deterministic sampling.
+    OpenAI supports it; Anthropic doesn't expose it.
+  - **temperature=0**: removes randomness entirely — always picks the
+    highest-probability next token (greedy decoding). Deterministic on
+    any API. Same prompt + temperature=0 = same answer every time.
+
+### Cost estimate
+
+With Claude Haiku (~$0.25/M input, $1.25/M output as of mid-2026):
+  - 30 eval queries x ~800 prompt + ~50 completion tokens each
+  - ~$0.006 per eval run (less than 1 cent)
+  - 100 CI runs/month ≈ $0.60/month
+
+### Design principle this demonstrates
+
+The entire pipeline (rag.py, eval.py, main.py, baseline.py) only
+imports from `app.llm` through `generate()` and `generate_stream()`.
+Nothing else knows whether those call Ollama, Anthropic, or OpenAI.
+This is the **adapter pattern**: fixed interface, swappable
+implementation. Switching from local to production is a one-file change
+plus a GitHub secret — exactly as it should be.
+
+---
+
+## 13. Phase 4 — Agentic tool-calling with reasoning trace
+
+### What we built
+
+Three tools in `app/tools/`:
+- `search_notes(query, top_k)` — wraps existing RAG retrieval
+- `list_notes(filter)` — discovers notes by tag/topic from frontmatter,
+  returns metadata without full content
+- `summarize_note(filename)` — reads one note in full and LLM-summarizes
+  it; path traversal protected; returns helpful error with available
+  filenames when file not found
+
+Agent loop in `app/agent.py`:
+- Uses Ollama's `/api/chat` endpoint (not `/api/generate`) — tool-calling
+  is only supported via the chat endpoint
+- Sends query + tool definitions (JSON schemas) to the LLM
+- LLM returns either `tool_calls` (wants to call a tool) or `content`
+  (final answer)
+- On `tool_calls`: execute tool, append result to message history, loop
+- On `content`: yield answer, stop
+- Full message history sent on every iteration — this is how the agent
+  "carries state between steps without losing the original question"
+- `MAX_STEPS=8` safety limit prevents infinite loops
+- Each step yields a `TraceEvent` (thinking/tool_call/tool_result/answer)
+  streamed via SSE so the UI shows reasoning in real time
+
+### Where each decision happens
+
+  "Agent decides to search" = Ollama's model weights, not our code.
+  We send the query + tool schemas; the LLM decides which tool to call
+  and what arguments to pass. We just execute whatever it chooses.
+
+  _call_ollama_with_tools() = one LLM call per step
+  _execute_tool()           = dispatches to the right tool module
+  ask_agent_stream()        = the loop that connects them
+
+### Real findings from running it
+
+**Finding 1 — Small models skip discovery steps**
+llama3.2:3B guessed `observability.md` directly instead of calling
+`list_notes` first to discover what exists. A larger model (Claude,
+GPT-4o) follows the system prompt's "use list_notes first" instruction
+more reliably. Fix options: force list_notes as a mandatory first step
+in the system prompt, or upgrade the model. This is a real production
+consideration — tool reliability is model-size dependent.
+
+**Finding 2 — LLMs send integer arguments as strings**
+The model called `search_notes` with `top_k: "6"` (JSON string) despite
+the schema saying `"type": "integer"`. Fixed with defensive coercion in
+`_execute_tool()` before dispatch. Always coerce known numeric params —
+never trust the LLM to respect schema types with smaller models.
+
+**Finding 3 — Small models explain errors in text instead of retrying**
+On tool failure, llama3.2:3B sometimes returns a text explanation
+("I was unable to execute the tool call...") instead of a corrected
+`tool_call`. Detected via `retry_signals` list; loop injects a
+correction hint and continues rather than surfacing the internal
+monologue as the final answer.
+
+**Finding 4 — Good tool error messages are part of the reasoning loop**
+`summarize_note` returns the list of available files when a filename
+isn't found ("File not found. Available notes: promql_patterns.md...").
+The model reads this error message and self-corrects. Tool error
+messages aren't just for developers — they're context the agent uses
+to plan its next step.
+
+### The demo that shows agentic behavior most clearly
+
+Query: *"What do my notes say about reinforcement learning, and how
+does that connect to feature stores?"*
+
+Agent trace:
+  Step 1: search_notes(query="reinforcement learning feature stores",
+          top_k=6) -> 6 chunks from rl_basics.md + feature_store_design.md
+  Step 2: synthesize -> draws connection between exploration-exploitation
+          tradeoff and streaming vs batch feature computation
+
+This is meaningfully different from the regular /ask endpoint:
+  - /ask: retrieves top-4 chunks for exact query, one generation call
+  - /agent: LLM chose what to search, decided 6 chunks was enough,
+    synthesized across two source files
+
+The 14s total time (vs ~2s for /ask) is the cost of the multi-step
+planning — a real tradeoff worth discussing.
+
+### Interview framing
+
+"I built a true agentic RAG system where the LLM decides which tools
+to call and in what order. The observable artifact is the reasoning
+trace — every tool call, argument, result, and synthesis step logged
+with timing. Running it on a 3B model revealed that smaller models
+skip discovery steps and send wrong argument types, which led me to
+add defensive coercion, retry detection, and self-correcting error
+messages. The key insight: good tool error messages are part of the
+agent's reasoning loop, not just dev debugging output."
+
+### Steps to use
+
+```bash
+uvicorn app.main:app
+# Open http://localhost:8000
+# Click "agent mode" — button highlights
+# Ask button changes to "Agent"
+# Try: "What do my notes say about reinforcement learning,
+#       and how does that connect to feature stores?"
+# Watch the trace panel fill in real time
+```
+
+---
+
+## 14. Glossary (for your own reference)
 
 - **p50 / p95**: 50th/95th percentile. p50 = "typical" (half of requests
   are faster). p95 = "the slow tail that still happens regularly" (95% of
@@ -503,3 +1084,15 @@ path."
   incrementally.
 - **RAG**: Retrieval-Augmented Generation - retrieve relevant context,
   then generate an answer conditioned on it.
+- **BM25**: Best Match 25 - a keyword ranking function that scores
+  documents by term frequency adjusted for document length. The standard
+  baseline for lexical (non-semantic) search. Used as retrieval fallback
+  when vector search times out.
+- **Graceful degradation**: the system returns something useful (BM25
+  chunks, or raw chunks) rather than an error when a component fails or
+  times out. The user experience degrades, but doesn't break.
+- **Threading vs async**: two concurrency models. Threading runs each
+  request in its own OS thread (blocks while waiting). Async runs all
+  requests on one thread, yielding control while waiting. Async wins
+  at scale; threading is acceptable when the real bottleneck serializes
+  anyway (e.g. local Ollama, single-inference GPU).

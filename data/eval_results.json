@@ -1,13 +1,17 @@
 {
-  "timestamp": "20260614T011312",
+  "timestamp": "20260614T013744",
   "seed": 42,
   "scores": {
     "retrieval_hit_rate": 1.0,
     "retrieval_hits": 23,
     "retrieval_scored": 23,
-    "generation_score": 0.9,
-    "generation_pass": 27,
+    "generation_score": 0.9666666666666667,
+    "generation_pass": 29,
     "generation_total": 30,
+    "keyword_score": 0.9,
+    "keyword_pass": 27,
+    "judge_run": 3,
+    "judge_overrides": 2,
     "answerable_score": 0.9130434782608695,
     "answerable_pass": 21,
     "answerable_total": 23,
@@ -20,8 +24,8 @@
       "query": "What is point-in-time correctness in a feature store?",
       "unanswerable": false,
       "retrieved_sources": [
-        "debug_matchevent_search.md",
-        "feature_store_design.md"
+        "feature_store_design.md",
+        "debug_matchevent_search.md"
       ],
       "expected_sources": [
         "feature_store_design.md"
@@ -35,6 +39,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 70,
       "prompt_tokens": 728
     },
@@ -42,8 +49,8 @@
       "query": "What's the tradeoff between streaming and batch feature computation?",
       "unanswerable": false,
       "retrieved_sources": [
-        "rl_basics.md",
-        "feature_store_design.md"
+        "feature_store_design.md",
+        "rl_basics.md"
       ],
       "expected_sources": [
         "feature_store_design.md"
@@ -56,6 +63,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 73,
       "prompt_tokens": 717
     },
@@ -63,8 +73,8 @@
       "query": "What is the difference between an offline store and an online store?",
       "unanswerable": false,
       "retrieved_sources": [
-        "rl_basics.md",
-        "feature_store_design.md"
+        "feature_store_design.md",
+        "rl_basics.md"
       ],
       "expected_sources": [
         "feature_store_design.md"
@@ -77,6 +87,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 61,
       "prompt_tokens": 733
     },
@@ -84,9 +97,9 @@
       "query": "What causes training/serving skew?",
       "unanswerable": false,
       "retrieved_sources": [
+        "feature_store_design.md",
         "debug_matchevent_search.md",
-        "rl_basics.md",
-        "feature_store_design.md"
+        "rl_basics.md"
       ],
       "expected_sources": [
         "feature_store_design.md"
@@ -100,6 +113,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 65,
       "prompt_tokens": 800
     },
@@ -107,8 +123,8 @@
       "query": "What MongoDB index was missing in the debugging notes?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "debug_matchevent_search.md"
@@ -120,6 +136,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 49,
       "prompt_tokens": 753
     },
@@ -127,8 +146,8 @@
       "query": "Summarize the lesson from the MatchEvent debugging log.",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "debug_matchevent_search.md"
@@ -136,13 +155,15 @@
       "retrieval_hit": true,
       "answer": "The lesson from the MatchEvent debugging log is:\n\nWhen searching for MatchEvent entities by GUID, ensure that the MongoDB query is correctly executed. In this case, the backend search handler was executing a query using `db.persistentEventMatchAttempt.find({ guid: \"<the-guid>\" })`, but it seemed to be taking too long (8-12 seconds) due to a potential timeout issue.\n\nAdditionally, it's essential to verify whether the series exists at all (`count(metric_name)`) before assuming the value is 0. In this case, the `title_retry` metric was absent from the dashboard, which indicated that the series did not exist as expected.\n\nThe debugging log also highlights the importance of filtering out empty strings when using regex filters in PromQL variables to avoid unintended results.",
       "expected_keywords": [
-        "index",
-        "guid"
+        "index"
       ],
       "missing_keywords": [
         "index"
       ],
       "generation_pass": false,
+      "judge_criterion": "The answer must convey that the lesson is about a missing database index causing silent failures \u2014 specifically that a missing index on a queried field causes a full collection scan that times out and returns empty results instead of an error.",
+      "judge_verdict": true,
+      "judge_explanation": "The answer correctly conveys the criterion by explicitly stating that a missing index on a queried field causes a full collection scan, which can timeout and return empty results instead of an error, aligning with the expected description of silent failures.",
       "completion_tokens": 158,
       "prompt_tokens": 840
     },
@@ -150,8 +171,8 @@
       "query": "Why did the search return empty results instead of an error?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "debug_matchevent_search.md"
@@ -164,6 +185,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 57,
       "prompt_tokens": 813
     },
@@ -171,8 +195,8 @@
       "query": "What was the root cause of the MatchEvent search bug?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "debug_matchevent_search.md"
@@ -185,6 +209,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 65,
       "prompt_tokens": 813
     },
@@ -192,8 +219,8 @@
       "query": "How do you handle the trailing pipe bug in Grafana variable filters?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
         "debug_matchevent_search.md",
+        "promql_patterns.md",
         "feature_store_design.md"
       ],
       "expected_sources": [
@@ -207,6 +234,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 40,
       "prompt_tokens": 768
     },
@@ -214,8 +244,8 @@
       "query": "Why might a Prometheus counter be missing from a dashboard entirely?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "promql_patterns.md"
@@ -228,6 +258,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 65,
       "prompt_tokens": 840
     },
@@ -235,8 +268,8 @@
       "query": "What PromQL pattern avoids gaps when summing across series?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "promql_patterns.md"
@@ -249,6 +282,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 26,
       "prompt_tokens": 840
     },
@@ -256,8 +292,8 @@
       "query": "What's the difference between a missing metric and a zero-value metric?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "promql_patterns.md"
@@ -270,6 +306,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 67,
       "prompt_tokens": 775
     },
@@ -292,6 +331,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 96,
       "prompt_tokens": 872
     },
@@ -313,6 +355,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 55,
       "prompt_tokens": 793
     },
@@ -321,8 +366,8 @@
       "unanswerable": false,
       "retrieved_sources": [
         "rl_basics.md",
-        "feature_store_design.md",
-        "utma_kiddie_tax.md"
+        "utma_kiddie_tax.md",
+        "feature_store_design.md"
       ],
       "expected_sources": [
         "rl_basics.md"
@@ -335,6 +380,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 55,
       "prompt_tokens": 830
     },
@@ -355,6 +403,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 44,
       "prompt_tokens": 801
     },
@@ -377,6 +428,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 59,
       "prompt_tokens": 774
     },
@@ -398,6 +452,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 89,
       "prompt_tokens": 810
     },
@@ -419,6 +476,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 66,
       "prompt_tokens": 823
     },
@@ -442,6 +502,9 @@
         "FAFSA"
       ],
       "generation_pass": false,
+      "judge_criterion": "The answer must convey that a UTMA account is counted as the student's own asset on financial aid applications (such as FAFSA) and is assessed at a higher rate than parental assets, making it more detrimental to financial aid eligibility.",
+      "judge_verdict": true,
+      "judge_explanation": "The answer accurately conveys that a UTMA account is counted as the student's own asset and has a more significant impact on financial aid eligibility compared to parental assets and 529 plans with qualified education expenses.",
       "completion_tokens": 53,
       "prompt_tokens": 807
     },
@@ -464,6 +527,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 145,
       "prompt_tokens": 674
     },
@@ -471,8 +537,8 @@
       "query": "What debugging lesson applies to both the MatchEvent bug and the missing Prometheus counter?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "debug_matchevent_search.md",
@@ -486,6 +552,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 59,
       "prompt_tokens": 844
     },
@@ -503,6 +572,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 68,
       "prompt_tokens": 796
     },
@@ -523,6 +595,9 @@
         "context"
       ],
       "generation_pass": false,
+      "judge_criterion": "The answer must decline to answer the general question and indicate that this general MongoDB knowledge is not covered in the provided context. It should NOT provide a general createIndex tutorial \u2014 that information is not in the notes.",
+      "judge_verdict": false,
+      "judge_explanation": "The answer provides a general createIndex tutorial and does not decline to answer the question, indicating that it covers information in the provided context beyond what is explicitly stated as not being covered (i.e., providing a general tutorial).",
       "completion_tokens": 63,
       "prompt_tokens": 815
     },
@@ -530,8 +605,8 @@
       "query": "What is the capital of France?",
       "unanswerable": true,
       "retrieved_sources": [
-        "promql_patterns.md",
         "rl_basics.md",
+        "promql_patterns.md",
         "feature_store_design.md"
       ],
       "expected_sources": [],
@@ -542,6 +617,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 79,
       "prompt_tokens": 816
     },
@@ -549,8 +627,8 @@
       "query": "What index should be added to persistentEventMatchAttempt?",
       "unanswerable": false,
       "retrieved_sources": [
-        "promql_patterns.md",
-        "debug_matchevent_search.md"
+        "debug_matchevent_search.md",
+        "promql_patterns.md"
       ],
       "expected_sources": [
         "debug_matchevent_search.md"
@@ -562,6 +640,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 89,
       "prompt_tokens": 812
     },
@@ -569,9 +650,9 @@
       "query": "What does AUTOINDEX mean in Milvus?",
       "unanswerable": true,
       "retrieved_sources": [
+        "debug_matchevent_search.md",
         "promql_patterns.md",
-        "rl_basics.md",
-        "debug_matchevent_search.md"
+        "rl_basics.md"
       ],
       "expected_sources": [],
       "retrieval_hit": null,
@@ -581,6 +662,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 58,
       "prompt_tokens": 751
     },
@@ -599,6 +683,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 44,
       "prompt_tokens": 661
     },
@@ -606,8 +693,8 @@
       "query": "What is the chunk size used for splitting notes?",
       "unanswerable": true,
       "retrieved_sources": [
-        "promql_patterns.md",
         "feature_store_design.md",
+        "promql_patterns.md",
         "debug_matchevent_search.md"
       ],
       "expected_sources": [],
@@ -618,6 +705,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 50,
       "prompt_tokens": 762
     },
@@ -625,8 +715,8 @@
       "query": "What does top_k control in retrieval?",
       "unanswerable": true,
       "retrieved_sources": [
-        "rl_basics.md",
-        "feature_store_design.md"
+        "feature_store_design.md",
+        "rl_basics.md"
       ],
       "expected_sources": [],
       "retrieval_hit": null,
@@ -636,6 +726,9 @@
       ],
       "missing_keywords": [],
       "generation_pass": true,
+      "judge_criterion": null,
+      "judge_verdict": null,
+      "judge_explanation": null,
       "completion_tokens": 57,
       "prompt_tokens": 864
     }

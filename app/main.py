@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from app.embeddings import get_device, warmup
 from app.prompts import PROMPT_VERSIONS
 from app.rag import ask_compare, ask_stream
+from app.agent import ask_agent_stream
 from app.timing import _request_id, new_request_id
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -132,6 +133,7 @@ def ask_endpoint(request: AskRequest):
                             }
                             for c in event["retrieved_chunks"]
                         ],
+                        "retrieval_fallback": event.get("retrieval_fallback", False),
                     }
                 )
             elif event["type"] == "token":
@@ -144,10 +146,37 @@ def ask_endpoint(request: AskRequest):
                         "completion_tokens": event["completion_tokens"],
                     }
                 )
+            elif event["type"] == "fallback":
+                yield _sse(
+                    {
+                        "type": "fallback",
+                        "reason": event.get("reason", "Generation timed out"),
+                        "retrieval_fallback": event.get("retrieval_fallback", False),
+                    }
+                )
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 
-# Serve the UI at / (and other static assets). Mounted last so it
-# doesn't shadow the API routes above.
+@app.post("/agent")
+def agent_endpoint(request: AskRequest):
+    """Agentic endpoint — LLM decides which tools to call and in what order.
+
+    Streams TraceEvents via SSE so the UI shows the agent's reasoning
+    in real time: which tools it called, what they returned, and finally
+    the synthesized answer.
+    """
+    request_id = new_request_id()
+
+    def event_stream():
+        _request_id.set(request_id)
+        yield _sse({"type": "request_id", "request_id": request_id})
+
+        for event in ask_agent_stream(request.query):
+            yield _sse(event.to_dict())
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+# Serve the UI at / — mounted last so it doesn't shadow API routes
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

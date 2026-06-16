@@ -332,7 +332,56 @@
     min-height: 60px;
   }
 
-  /* --- Empty state --- */
+  /* --- Fallback / degraded state banner --- */
+  .fallback-banner {
+    background: #2a2010;
+    border: 1px solid #6b5a20;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #d4b94a;
+    display: none;
+  }
+  .fallback-banner.visible { display: block; }
+
+  /* --- Agent trace --- */
+  .trace-step {
+    border-left: 2px solid var(--border);
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-radius: 0 6px 6px 0;
+    background: var(--panel-2);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .trace-step.thinking { border-left-color: var(--text-dim); color: var(--text-dim); }
+  .trace-step.tool_call { border-left-color: var(--accent); }
+  .trace-step.tool_result { border-left-color: var(--accent-dim); color: var(--text-dim); }
+  .trace-step.answer { border-left-color: var(--accent); display: none; }
+  .trace-step.error { border-left-color: #c0392b; color: #c0392b; }
+
+  .trace-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+  .trace-step.tool_call .trace-label { color: var(--accent); }
+  .trace-step.tool_result .trace-label { color: var(--accent-dim); }
+
+  .trace-args {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+  .trace-preview {
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-top: 4px;
+    white-space: pre-wrap;
+    max-height: 80px;
+    overflow: hidden;
+  }
   .empty {
     text-align: center;
     padding: 48px 24px;
@@ -368,6 +417,7 @@
     <header>
       <div class="logo">cortex<span>.</span></div>
       <button id="compare-toggle" class="ghost-btn">compare prompts</button>
+      <button id="agent-toggle" class="ghost-btn">agent mode</button>
     </header>
 
     <div class="pipeline" id="pipeline">
@@ -409,6 +459,7 @@
         <span id="answer-meta" class="meta-row"></span>
       </div>
       <div class="panel-body">
+        <div class="fallback-banner" id="fallback-banner"></div>
         <div class="answer" id="answer-text"></div>
       </div>
     </div>
@@ -428,6 +479,17 @@
           <div class="answer compare-answer" id="compare-v2"></div>
           <div class="meta-row" id="compare-v2-meta"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="panel" id="agent-panel">
+      <div class="panel-header">
+        <span>Agent reasoning trace</span>
+        <span id="agent-meta" class="meta-row"></span>
+      </div>
+      <div class="panel-body">
+        <div id="agent-trace"></div>
+        <div class="answer" id="agent-answer"></div>
       </div>
     </div>
 
@@ -456,16 +518,36 @@
     const emptyState = document.getElementById("empty-state");
     const compareToggle = document.getElementById("compare-toggle");
     const comparePanel = document.getElementById("compare-panel");
+    const agentToggle = document.getElementById("agent-toggle");
+    const agentPanel = document.getElementById("agent-panel");
+    const agentTrace = document.getElementById("agent-trace");
+    const agentAnswer = document.getElementById("agent-answer");
+    const agentMeta = document.getElementById("agent-meta");
+    const fallbackBanner = document.getElementById("fallback-banner");
 
     let compareMode = false;
+    let agentMode = false;
 
     compareToggle.addEventListener("click", () => {
       compareMode = !compareMode;
+      if (compareMode) agentMode = false;
       compareToggle.classList.toggle("active", compareMode);
-      askBtn.textContent = compareMode ? "Compare" : "Ask";
-      // Hide whichever panel doesn't apply to the current mode
+      agentToggle.classList.remove("active");
+      askBtn.textContent = compareMode ? "Compare" : (agentMode ? "Agent" : "Ask");
       answerPanel.classList.remove("visible");
       comparePanel.classList.remove("visible");
+      agentPanel.classList.remove("visible");
+    });
+
+    agentToggle.addEventListener("click", () => {
+      agentMode = !agentMode;
+      if (agentMode) compareMode = false;
+      agentToggle.classList.toggle("active", agentMode);
+      compareToggle.classList.remove("active");
+      askBtn.textContent = agentMode ? "Agent" : "Ask";
+      answerPanel.classList.remove("visible");
+      comparePanel.classList.remove("visible");
+      agentPanel.classList.remove("visible");
     });
 
     function resetStages() {
@@ -493,10 +575,8 @@
       const query = queryInput.value.trim();
       if (!query) return;
 
-      if (compareMode) {
-        await askCompare(query);
-        return;
-      }
+      if (compareMode) { await askCompare(query); return; }
+      if (agentMode)   { await askAgent(query);   return; }
 
       askBtn.disabled = true;
       emptyState.style.display = "none";
@@ -508,6 +588,8 @@
       chunksCount.textContent = "";
       answerMeta.innerHTML = "";
       answerText.innerHTML = '<span class="cursor"></span>';
+      fallbackBanner.textContent = "";
+      fallbackBanner.classList.remove("visible");
 
       setStageActive("embed_query");
       setStageActive("vector_search");
@@ -543,6 +625,12 @@
               setStageDone("vector_search", `${event.retrieved_chunks.length} chunks`);
               setStageActive("generate");
               renderChunks(event.retrieved_chunks);
+              if (event.retrieval_fallback) {
+                fallbackBanner.textContent =
+                  "⚠ Vector search timed out — results from keyword (BM25) fallback. Semantic relevance may be lower.";
+                fallbackBanner.classList.add("visible");
+                answerPanel.classList.add("visible");
+              }
             } else if (event.type === "token") {
               if (firstTokenTime === null) {
                 firstTokenTime = performance.now();
@@ -565,6 +653,14 @@
                 `<span><b>${event.completion_tokens}</b> tokens out</span>` +
                 `<span><b>${event.prompt_tokens}</b> tokens in</span>` +
                 `<span><b>${totalMs}</b>ms total</span>`;
+            } else if (event.type === "fallback") {
+              // Generation timed out — chunks already shown above
+              setStageDone("generate", "timed out");
+              fallbackBanner.textContent =
+                `⚠ Generation timed out — showing retrieved context only. ${event.reason || ""}`;
+              fallbackBanner.classList.add("visible");
+              answerText.innerHTML = "";
+              answerPanel.classList.add("visible");
             }
           }
         }
@@ -634,6 +730,103 @@
       } catch (err) {
         document.getElementById("compare-v1").textContent = `Error: ${err.message}`;
         comparePanel.classList.add("visible");
+      } finally {
+        askBtn.disabled = false;
+      }
+    }
+
+    async function askAgent(query) {
+      askBtn.disabled = true;
+      emptyState.style.display = "none";
+
+      resetStages();
+      agentTrace.innerHTML = "";
+      agentAnswer.textContent = "";
+      agentMeta.innerHTML = "";
+      agentPanel.classList.remove("visible");
+      chunksPanel.classList.remove("visible");
+      answerPanel.classList.remove("visible");
+
+      setStageActive("embed_query");
+      setStageActive("vector_search");
+      setStageActive("generate");
+
+      const t0 = performance.now();
+
+      try {
+        const resp = await fetch("/agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let stepCount = 0;
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const event = JSON.parse(line.slice(6));
+
+            agentPanel.classList.add("visible");
+
+            if (event.type === "thinking") {
+              const div = document.createElement("div");
+              div.className = "trace-step thinking";
+              div.innerHTML = `<div class="trace-label">thinking</div>${escapeHtml(event.message)}`;
+              agentTrace.appendChild(div);
+              setStageDone("embed_query", `step ${event.step}`);
+
+            } else if (event.type === "tool_call") {
+              stepCount++;
+              const args = JSON.stringify(event.arguments || {}, null, 0)
+                .replace(/^{|}$/g, "").replace(/"/g, "");
+              const div = document.createElement("div");
+              div.id = `trace-tool-${event.step}-${event.tool}`;
+              div.className = "trace-step tool_call";
+              div.innerHTML =
+                `<div class="trace-label">→ ${escapeHtml(event.tool)}</div>` +
+                `<div class="trace-args">${escapeHtml(args)}</div>`;
+              agentTrace.appendChild(div);
+              setStageDone("vector_search", `${stepCount} tool call${stepCount===1?"":"s"}`);
+
+            } else if (event.type === "tool_result") {
+              const div = document.createElement("div");
+              div.className = "trace-step tool_result";
+              div.innerHTML =
+                `<div class="trace-label">← ${escapeHtml(event.tool)} result</div>` +
+                `<div class="trace-preview">${escapeHtml(event.result_preview || "")}</div>`;
+              agentTrace.appendChild(div);
+
+            } else if (event.type === "answer") {
+              const totalMs = Math.round(performance.now() - t0);
+              setStageDone("generate", `${totalMs}ms · ${event.total_steps} steps`);
+              agentAnswer.textContent = event.answer;
+              agentMeta.innerHTML =
+                `<span><b>${event.total_steps}</b> steps</span>` +
+                `<span><b>${event.tools_called}</b> tool calls</span>` +
+                `<span><b>${totalMs}</b>ms total</span>`;
+
+            } else if (event.type === "error") {
+              const div = document.createElement("div");
+              div.className = "trace-step error";
+              div.innerHTML = `<div class="trace-label">error</div>${escapeHtml(event.message)}`;
+              agentTrace.appendChild(div);
+              setStageDone("generate", "error");
+            }
+          }
+        }
+      } catch (err) {
+        agentAnswer.textContent = `Error: ${err.message}`;
       } finally {
         askBtn.disabled = false;
       }
